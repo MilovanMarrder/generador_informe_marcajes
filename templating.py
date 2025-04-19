@@ -4,6 +4,7 @@ LATEX_TEMPLATE = r"""
 \documentclass[11pt,a4paper]{article}
 
 % Paquetes necesarios
+\usepackage{tcolorbox}
 \usepackage[utf8]{inputenc}
 \usepackage[spanish]{babel}
 \usepackage{geometry}
@@ -117,19 +118,55 @@ Empleado & Mediana hrs/día & Horas totales\\
 \bottomrule
 \end{tabular}
 
+\newpage
+
 \section{Detalles de Marcajes}
 {% for nombre, regs in detalles_marcajes.items() %}
-\subsection*{{ nombre }}
-\begin{tabular}{lccc}
-\toprule
-Fecha & Entrada & Salida & Hrs trabajadas\\
-\midrule
-{% for r in regs %}
-{{ r['Fecha'] }} & {{ r['Entrada'].time() }} & {{ r['Salida'].time() }} & {{ "%.2f"|format(r['Jornada'].total_seconds()/3600) }}\\
+\subsection{ {{ nombre }} }
+
+\begin{minipage}[t]{0.62\textwidth}
+  \begin{tabular}{lccc}
+    \toprule
+    Fecha & Entrada & Salida & Hrs trabajadas\\
+    \midrule
+    {% for r in regs %}
+    {{ r['Fecha'].strftime('%Y-%m-%d') }} &
+    {{ r['Entrada'].time() }} &
+    {{ r['Salida'].time() }} &
+    {{ "%.2f"|format(r['Jornada'].total_seconds()/3600) }}\\
+    {% endfor %}
+    \bottomrule
+  \end{tabular}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.35\textwidth}
+  \textbf{Días Atípicos:}
+  \begin{tabular}{lr}
+    \toprule
+    Fecha & Tipo\\
+    \midrule
+    {% for o in outliers_por_persona[nombre] %}
+    {{ o['Fecha'].strftime('%Y-%m-%d') }} & {{ o['Tipo'] }}\\
+    {% endfor %}
+    \bottomrule
+  \end{tabular}
+
+  \vspace{1em}
+  \textbf{Resumen Mensual:}
+  \begin{tabular}{lrr}
+    \toprule
+    Mes & Horas & Días\\
+    \midrule
+    {% for m in resumen_mensual[nombre] %}
+    {{ m.Mes }} & {{ "%.2f"|format(m.Horas) }} & {{ m.Dias }}\\
+    {% endfor %}
+    \bottomrule
+  \end{tabular}
+\end{minipage}
+
+\newpage
 {% endfor %}
-\bottomrule
-\end{tabular}
-{% endfor %}
+
 
 \end{document}
 """
