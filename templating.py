@@ -2,20 +2,97 @@ from jinja2 import Template
 
 LATEX_TEMPLATE = r"""
 \documentclass[11pt,a4paper]{article}
+
+% Paquetes necesarios
 \usepackage[utf8]{inputenc}
-\usepackage{booktabs}
+\usepackage[spanish]{babel}
+\usepackage{geometry}
+\usepackage{fancyhdr}
 \usepackage{xcolor}
-\definecolor{corporativo}{RGB}{0,51,102}
+\usepackage{titlesec}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{enumitem}
+\usepackage{hyperref}
+
+% Definición de colores
+\definecolor{corporativo}{RGB}{180,0,0} % Rojo corporativo sobrio
+
+% Configuración de geometría
+\geometry{
+  a4paper,
+  top=2.5cm,
+  bottom=2.5cm,
+  left=2.5cm,
+  right=2.5cm,
+  headheight=1.5cm,
+  footskip=1.5cm
+}
+
+% Configuración de encabezado y pie de página
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{1pt}
+\renewcommand{\footrulewidth}{1pt}
+\fancyhead[L]{\textcolor{corporativo}{\textbf{TechSolutions S.A.}}}
+\fancyhead[R]{\textcolor{corporativo}{\textbf{Reporte de Tiempo}}}
+\fancyfoot[C]{\textcolor{corporativo}{\thepage}}
+\fancyfoot[L]{\textcolor{corporativo}{Confidencial}}
+\fancyfoot[R]{\textcolor{corporativo}{Marzo 2025}}
+
+% Estilo de títulos - Sin numeración y solo títulos en rojo
+\titleformat{\section}
+  {\normalfont\Large\bfseries\color{corporativo}}
+  {}{0em}{}[\titlerule]
+\titleformat{\subsection}
+  {\normalfont\large\bfseries}
+  {}{0em}{}
+
+% Eliminar sangría en párrafos
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.5em}
+
+% Estilo de listas
+\setlist{noitemsep}
+
+% Configuración de hipervínculos
+\hypersetup{
+  colorlinks=true,
+  linkcolor=corporativo,
+  urlcolor=corporativo
+}
+
+% Eliminar la numeración de secciones
+\renewcommand{\thesection}{}
+\renewcommand{\thesubsection}{}
+
+\begin{document}
 \begin{document}
 
 \begin{titlepage}
   \centering
-  {\Huge\bfseries\textcolor{corporativo}{REPORTE DE TIEMPO DE TRABAJO}}\\
-  {\Large Empresa: {{ empresa }}}\\
-  {\normalsize Período: {{ periodo_inicio }} -- {{ periodo_fin }}}\\
+  \vspace*{2cm}
+  {\Huge\bfseries\textcolor{corporativo}{REPORTE DE TIEMPOS DE TRABAJO}\par}
+  \vspace{1.5cm}
+  {\Large\textbf{Empresa Marrder}\par}
+  \vspace{1cm}
+  {\large Período: {{inicio_fechas}} - {{final_fechas}}\par}
+  \vspace{5cm}
+  
+  \begin{tabular}{rl}
+    \textbf{Informe elaborado por:} & Departamento de Recursos Humanos \\
+    \textbf{Fecha de elaboración:} & 03/04/2025 \\
+    \textbf{Documento:} & Confidencial \\
+  \end{tabular}
+  
   \vfill
-  {\small Fecha de elaboración: {{ fecha_elaboracion }}}\\
+  \includegraphics[width=0.3\textwidth]{example-image} % Reemplazar con el logo real
 \end{titlepage}
+
+
+
 \tableofcontents\newpage
 
 \section{Resumen General}
