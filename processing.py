@@ -7,6 +7,8 @@ def compute_basic_columns(df: pd.DataFrame) -> pd.DataFrame:
     Agrega columnas: Fecha, Entrada, Salida, Jornada, Mes, Fin_de_semana.
     """
     df['Fecha'] = df['Fecha/Hora'].dt.date
+    inicio_fechas = df['Fecha/Hora'].min()
+    final_fechas = df['Fechas/Hora'].max()
     df['tipo'] = df['Fecha/Hora'].apply(
         lambda h: 'Entrada' if h.time() < datetime.strptime('12:00','%H:%M').time() else 'Salida'
     )
@@ -21,4 +23,4 @@ def compute_basic_columns(df: pd.DataFrame) -> pd.DataFrame:
     tabla['Mes'] = tabla['Fecha'].apply(lambda d: d.strftime('%B %Y'))
     tabla['Dia_semana'] = tabla['Entrada'].dt.weekday
     tabla['Fin_de_semana'] = tabla['Dia_semana'] >= 5
-    return tabla
+    return tabla,inicio_fechas,final_fechas
