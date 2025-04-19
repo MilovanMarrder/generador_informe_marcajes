@@ -87,3 +87,28 @@ def compute_resumen_mensual(detalles_marcajes: dict) -> dict:
         resumen[nombre] = pivot
     return resumen
 
+
+def detect_outliers_jornada(tabla: pd.DataFrame, factor: float = 1.5) -> pd.DataFrame:
+    """
+    Detecta outliers en la duración de la jornada por IQR para cada persona.
+    Devuelve un DataFrame con las filas atípicas e incluye columna 'Tipo' (Baja/Alta).
+    """
+    lista_outliers = []
+    for nombre, grp in tabla.groupby('Nombre'):
+        horas = grp['Jornada'].dt.total_seconds() / 3600
+        q1, q3 = horas.quantile([0.25, 0.75])
+        iqr = q3 - q1
+        lower = q1 - factor * iqr
+        upper = q3 + factor * iqr
+        mask = (horas < lower) | (horas > upper)
+        out = grp.loc[mask].copy()
+        out['Tipo'] = out['Jornada'].apply(
+            lambda j: 'Baja' if (j.total_seconds()/3600) < lower else 'Alta'
+        )
+        lista_outliers.append(out)
+    if lista_outliers:
+        return pd.concat(lista_outliers).reset_index(drop=True)
+    else:
+        # Ningún outlier detectado, devolver DataFrame vacío con mismas columnas
+        cols = list(tabla.columns) + ['Tipo']
+        return pd.DataFrame(columns=cols)
