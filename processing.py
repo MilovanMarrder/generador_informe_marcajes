@@ -8,7 +8,7 @@ def compute_basic_columns(df: pd.DataFrame) -> pd.DataFrame:
     """
     df['Fecha'] = df['Fecha/Hora'].dt.date
     inicio_fechas = df['Fecha/Hora'].min()
-    final_fechas = df['Fechas/Hora'].max()
+    final_fechas = df['Fecha/Hora'].max()
     df['tipo'] = df['Fecha/Hora'].apply(
         lambda h: 'Entrada' if h.time() < datetime.strptime('12:00','%H:%M').time() else 'Salida'
     )
