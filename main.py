@@ -45,8 +45,8 @@ else:
 
 # 7. Contexto para LaTeX
 context = {
-    "inicio_fechas": fechas['inicio'].strftime("%d/%m/%Y"),
-    "final_fechas": fechas['fin'].strftime("%d/%m/%Y"),
+    "inicio_fechas": fechas['inicio'].strftime("%d %B de %Y"),
+    "final_fechas": fechas['fin'].strftime("%d %B de %Y"),
     "resumen_general": resumen_general,
     "resumen_emps": resumen_emps,
     "detalles_marcajes": detalles,
