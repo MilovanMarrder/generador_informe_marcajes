@@ -1,3 +1,5 @@
 pandas
 tabula-py
 jinja2
+scikit-learn
+pillow

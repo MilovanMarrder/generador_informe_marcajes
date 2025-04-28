@@ -1,8 +1,4 @@
 from jinja2 import Template
-import datetime
-
-# dia en el formato de fecha %d %M de %Y
-hoy = datetime.datetime.now().strftime("%d %B de %Y")
 
 LATEX_TEMPLATE = r"""
 \documentclass[11pt,a4paper]{article}
@@ -21,9 +17,13 @@ LATEX_TEMPLATE = r"""
 \usepackage{multirow}
 \usepackage{enumitem}
 \usepackage{hyperref}
+\usepackage{float}
+\usepackage{colortbl}
+\usepackage{longtable}
 
 % Definición de colores
-\definecolor{corporativo}{RGB}{180,0,0} % Rojo corporativo sobrio
+\definecolor{corporativo}{RGB}{180,0,0}
+\definecolor{grisclaro}{RGB}{245,245,245}
 
 % Configuración de geometría
 \geometry{
@@ -36,7 +36,7 @@ LATEX_TEMPLATE = r"""
   footskip=1.5cm
 }
 
-% Configuración de encabezado y pie de página
+% Encabezado y pie de página
 \pagestyle{fancy}
 \fancyhf{}
 \renewcommand{\headrulewidth}{1pt}
@@ -47,33 +47,33 @@ LATEX_TEMPLATE = r"""
 \fancyfoot[L]{\textcolor{corporativo}{Confidencial}}
 \fancyfoot[R]{\textcolor{corporativo}{Marzo 2025}}
 
-% Estilo de títulos - Sin numeración y solo títulos en rojo
+% Estilos de títulos
 \titleformat{\section}
   {\normalfont\Large\bfseries\color{corporativo}}
   {}{0em}{}[\titlerule]
 \titleformat{\subsection}
-  {\normalfont\large\bfseries}
+  {\normalfont\large\bfseries\color{corporativo}}
   {}{0em}{}
 
-% Eliminar sangría en párrafos
+% Eliminar sangría
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{0.5em}
 
-% Estilo de listas
-\setlist{noitemsep}
+% Listas
+\setlist{noitemsep, leftmargin=1.5em}
 
-% Configuración de hipervínculos
+% Hipervínculos
 \hypersetup{
   colorlinks=true,
   linkcolor=corporativo,
   urlcolor=corporativo
 }
 
-% Eliminar la numeración de secciones
+% Sin numeración de secciones
 \renewcommand{\thesection}{}
 \renewcommand{\thesubsection}{}
 
-% Comandos para crear boxes informativos
+% Comandos personalizados
 \newcommand{\infobox}[2]{
   \begin{tcolorbox}[
     colback=grisclaro,
@@ -85,7 +85,6 @@ LATEX_TEMPLATE = r"""
   \end{tcolorbox}
 }
 
-% Comando para tablas con estilo mejorado
 \newcommand{\mejoradatabla}[1]{
   \renewcommand{\arraystretch}{1.3}
   \setlength{\tabcolsep}{10pt}
@@ -94,183 +93,170 @@ LATEX_TEMPLATE = r"""
   \setlength{\tabcolsep}{6pt}
 }
 
-
 \begin{document}
 
-% --- PÁGINA DE TÍTULO ---
+% --- Página de título ---
 \begin{titlepage}
   \centering
-  \vspace*{2cm} % Espacio superior
-
-  % Logo de la empresa (si existe)
-  % \includegraphics[width=0.3\textwidth]{logo_techsolutions} % Reemplazar con tu logo
-  % \vspace{1.5cm}
+  \vspace*{2cm}
 
   {\Huge\bfseries\textcolor{corporativo}{REPORTE DE TIEMPOS DE TRABAJO}\par}
   \vspace{1cm}
-  {\color{gray}\rule{\textwidth}{0.4pt}\par} % Línea separadora sutil
+  {\color{gray}\rule{\textwidth}{0.4pt}\par}
   \vspace{1cm}
-  {\Large\bfseries EMPRESA MARDER\par} % Nombre de la empresa cliente
+  {\Large\bfseries EMPRESA MARRDER\par}
   \vspace{0.5cm}
-  {\large Período Analizado: {{inicio_fechas}} - {{final_fechas}}\par}
+  {\large Per\'iodo Analizado: {{inicio_fechas}} - {{final_fechas}}\par}
 
-  \vspace{4cm} % Espacio considerable antes de los metadatos
+  \vspace{4cm}
 
-  % Metadatos del informe
-  \begin{tabular}{>{\bfseries}r @{\hspace{1em}} l} % Alineación: derecha negrita, espacio, izquierda
+  \begin{tabular}{>{\bfseries}r @{\hspace{1em}} l}
   Informe elaborado por: & Departamento de Recursos Humanos \\
-  Fecha de elaboración: & \today \\
-  Clasificación: & \textcolor{corporativo}{Confidencial} \\
+  Fecha de elaboraci\'on: & \today \\
+  Clasificaci\'on: & \textcolor{corporativo}{Confidencial} \\
   \end{tabular}
 
-  \vfill % Empuja el contenido restante hacia abajo
+  \vfill
 
-  % Línea sutil en la parte inferior antes del logo (opcional)
   {\color{gray}\rule{0.6\textwidth}{0.4pt}\par}
   \vspace{0.5cm}
-  % Logo de la empresa (alternativa: colocarlo aquí)
-  % \includegraphics[width=0.2\textwidth]{logo_techsolutions}
-  % O un texto si no hay logo:
-  {\small \textcolor{gray}{\textit{Este informe es confidencial y no debe ser distribuido sin autorización.}}\\
-  \textcolor{gray}{\textit{Generador creado por Milovan Marrder.}}}
-  \vspace*{1cm} % Espacio inferior
+  {\small \textcolor{gray}{TechSolutions S.A. - Innovaci\'on y Resultados}}
+  \vspace*{1cm}
 \end{titlepage}
 
-
-
-
-\tableofcontents\newpage
+\tableofcontents
+\clearpage
 
 \section{Resumen General}
-\begin{tabular}{lrrr}
+
+\infobox{Horas trabajadas por período, tipo de día y empleado}{
+  A continuación se presenta el detalle de los días trabajados, horas totales y promedio de jornada por empleado, diferenciando entre días de semana y fines de semana.
+}
+
+{% for mes, tipos_dia in resumen_por_mes_y_tipo_dia.items() %}
+
+\section{ {{ mes }} }
+
+{% for tipo_dia, registros in tipos_dia.items() %}
+
+\subsection{ {{ tipo_dia }} }
+
+\vspace{0.5cm}
+\begin{table}[H]
+\centering
+\mejoradatabla{
+\begin{tabular}{>{\bfseries}lrrr}
 \toprule
-Tipo de día & Días trabajados & Total horas\\
+\rowcolor{grisclaro} \textbf{Empleado} & \textbf{Días} & \textbf{Total Hrs} & \textbf{Promedio Jornada}\\
 \midrule
-{% for row in resumen_general %}
-{{ row.Tipo_dia }} & {{ row.Cantidad_Dias }} & {{ "%.2f"|format(row.Total_horas) }}\\
+{% for row in registros %}
+{{ row.Nombre }} & {{ row.Dias_trabajados }} & {{ "%.2f"|format(row.Total_horas) }} & {{ "%.2f"|format(row.Promedio_jornada) }}\\
 {% endfor %}
 \bottomrule
 \end{tabular}
+}
+\caption{Detalle de {{ tipo_dia }} en {{ mes }}}
+\end{table}
 
-\begin{tabular}{lrrr}
-\toprule
-Mes & Tipo de día & Días trabajados & Total horas\\
-\midrule
-{% for row in resumen_general %}
-{{ row.Mes }} & {{ row.Tipo_dia }} & {{ row.Cantidad_Dias }} & {{ "%.2f"|format(row.Total_horas) }}\\
 {% endfor %}
-\bottomrule
-\end{tabular}
-
-\section{Horas por Empleado}
-\begin{tabular}{lrr}
-\toprule
-Empleado & Mediana hrs/día & Horas totales\\
-\midrule
-{% for emp in resumen_emps %}
-{{ emp.Nombre }} & {{ "%.2f"|format(emp.Mediana_hrs_dia) }} & {{ "%.2f"|format(emp.Horas_totales) }}\\
 {% endfor %}
-\bottomrule
-\end{tabular}
 
-\begin{tabular}{lrr}
-\toprule
-Empleado & Mediana hrs/día & Horas totales\\
-\midrule
-{% for emp in resumen_emps %}
-{{ emp.Nombre }} & {{ "%.2f"|format(emp.Mediana_hrs_dia) }} & {{ "%.2f"|format(emp.Horas_totales) }}\\
-{% endfor %}
-\bottomrule
-\end{tabular}
 
-\newpage
+\clearpage
 
 \section{Detalles de Marcajes}
+
 {% for nombre, regs in detalles_marcajes.items() %}
+
 \subsection{ {{ nombre }} }
 
 \begin{minipage}[t]{0.62\textwidth}
-  \begin{tabular}{lccc}
-    \toprule
-    Fecha & Entrada & Salida & Hrs trabajadas\\
-    \midrule
-    {% for r in regs %}
-    {{ r['Fecha'].strftime('%Y-%m-%d') }} &
-    {{ r['Entrada'].time() }} &
-    {{ r['Salida'].time() }} &
-    {{ "%.2f"|format(r['Jornada'].total_seconds()/3600) }}\\
-    {% endfor %}
-    \bottomrule
-  \end{tabular}
+\mejoradatabla{
+\begin{tabular}{lccc}
+\toprule
+\rowcolor{grisclaro} \textbf{Fecha} & \textbf{Entrada} & \textbf{Salida} & \textbf{Hrs trabajadas}\\
+\midrule
+{% for r in regs %}
+{{ r['Fecha'].strftime('%Y-%m-%d') }} & {{ r['Entrada'].time() }} & {{ r['Salida'].time() }} & {{ "%.2f"|format(r['Jornada'].total_seconds()/3600) }}\\
+{% endfor %}
+\bottomrule
+\end{tabular}
+}
 \end{minipage}
 \hfill
 \begin{minipage}[t]{0.35\textwidth}
-  \textbf{Días Atípicos:}
-  \begin{tabular}{lr}
-    \toprule
-    Fecha & Tipo\\
-    \midrule
-    {% for o in outliers_por_persona[nombre] %}
-    {{ o['Fecha'].strftime('%Y-%m-%d') }} & {{ o['Tipo'] }}\\
-    {% endfor %}
-    \bottomrule
-  \end{tabular}
+\infobox{D\'ias At\'ipicos}{
+\begin{tabular}{lr}
+\toprule
+\rowcolor{grisclaro} \textbf{Fecha} & \textbf{Tipo}\\
+\midrule
+{% for o in outliers_por_persona[nombre] %}
+{{ o['Fecha'].strftime('%Y-%m-%d') }} & {{ o['Tipo'] }}\\
+{% endfor %}
+\bottomrule
+\end{tabular}
+}
 
-  \vspace{1em}
-  \textbf{Resumen Mensual:}
-  \begin{tabular}{lrr}
-    \toprule
-    Mes & Horas & Días\\
-    \midrule
-    {% for m in resumen_mensual[nombre] %}
-    {{ m.Mes }} & {{ "%.2f"|format(m.Horas) }} & {{ m.Dias }}\\
-    {% endfor %}
-    \bottomrule
-  \end{tabular}
+\vspace{1em}
+\infobox{Resumen Mensual}{
+\begin{tabular}{lrr}
+\toprule
+\rowcolor{grisclaro} \textbf{Mes} & \textbf{Horas} & \textbf{D\'ias}\\
+\midrule
+{% for m in resumen_mensual[nombre] %}
+{{ m.Mes }} & {{ "%.2f"|format(m.Horas) }} & {{ m.Dias }}\\
+{% endfor %}
+\bottomrule
+\end{tabular}
+}
 \end{minipage}
 
-\newpage
+\clearpage
 {% endfor %}
 
-\section{Análisis de Grupos de Empleados (Semana Laboral)}
+\section{An\'alisis de Grupos de Empleados (Semana Laboral)}
 
 \subsection{Variables utilizadas para formar los grupos}
 
+\infobox{Criterios de agrupaci\'on}{
+Se han utilizado las siguientes variables:
 \begin{itemize}
-    \item \textbf{Duración promedio de jornada}: Número promedio de horas trabajadas por día.
-    \item \textbf{Días trabajados}: Número total de días trabajados en el período evaluado.
-    \item \textbf{Variabilidad de jornada}: Variabilidad en las horas trabajadas día a día.
+  \item \textbf{Duraci\'on promedio de jornada}
+  \item \textbf{D\'ias trabajados}
+  \item \textbf{Variabilidad de jornada}
 \end{itemize}
+}
 
 {{ tabla_clusters_semana }}
 
 {{ empleados_clusters_semana }}
 
 {% if tabla_clusters_finde %}
-\newpage
-\section{Análisis de Grupos de Empleados (Fines de Semana)}
+
+\clearpage
+\section{An\'alisis de Grupos de Empleados (Fines de Semana)}
 
 \subsection{Variables utilizadas para formar los grupos}
 
+\infobox{Criterios de agrupaci\'on}{
+Se han utilizado las mismas variables:
 \begin{itemize}
-    \item \textbf{Duración promedio de jornada}: Número promedio de horas trabajadas por día.
-    \item \textbf{Días trabajados}: Número total de días trabajados en el período evaluado.
-    \item \textbf{Variabilidad de jornada}: Variabilidad en las horas trabajadas día a día.
+  \item \textbf{Duraci\'on promedio de jornada}
+  \item \textbf{D\'ias trabajados}
+  \item \textbf{Variabilidad de jornada}
 \end{itemize}
+}
 
 {{ tabla_clusters_finde }}
 
 {{ empleados_clusters_finde }}
 {% endif %}
 
-
-
-
 \end{document}
 """
+
 
 def render_report(context: dict, output_path: str):
     tex = Template(LATEX_TEMPLATE).render(**context)
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write(tex)
-

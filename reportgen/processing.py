@@ -1,5 +1,6 @@
 import pandas as pd
 from datetime import datetime
+from collections import defaultdict
 
 
 def compute_basic_columns(df: pd.DataFrame) -> pd.DataFrame:
@@ -113,3 +114,73 @@ def detect_outliers_jornada(tabla: pd.DataFrame, factor: float = 1.5) -> pd.Data
         # Ningún outlier detectado, devolver DataFrame vacío con mismas columnas
         cols = list(tabla.columns) + ['Tipo']
         return pd.DataFrame(columns=cols)
+
+
+def construir_resumen_fusionado(detalles_marcajes: dict) -> list:
+    """
+    Construye un resumen fusionado por Mes, Tipo de Día y Empleado
+    basado en los detalles de marcajes.
+    """
+    registros = []
+    for nombre, registros_empleado in detalles_marcajes.items():
+        for r in registros_empleado:
+            registros.append({
+                "Nombre": nombre,
+                "Fecha": pd.to_datetime(r["Fecha"]),
+                "Horas_trabajadas": r["Jornada"].total_seconds() / 3600
+            })
+
+    df = pd.DataFrame(registros)
+    if df.empty:
+        return []
+
+    df["Mes"] = df["Fecha"].dt.strftime("%B %Y")
+    df["Tipo_dia"] = df["Fecha"].dt.weekday.apply(lambda x: "Fin de semana" if x >= 5 else "Día de semana")
+
+    resumen = df.groupby(["Mes", "Tipo_dia", "Nombre"]).agg(
+        Dias_trabajados=("Fecha", "count"),
+        Total_horas=("Horas_trabajadas", "sum")
+    ).reset_index()
+
+    return resumen.to_dict(orient="records")
+
+
+
+def agrupar_resumen_por_mes(resumen_fusionado: list) -> dict:
+    """
+    Agrupa el resumen fusionado por Mes.
+    """
+    resumen_por_mes = defaultdict(list)
+    for row in resumen_fusionado:
+        resumen_por_mes[row['Mes']].append(row)
+    return dict(resumen_por_mes)
+
+
+
+def agrupar_resumen_por_mes_y_tipo_dia(resumen_fusionado: list) -> dict:
+    """
+    Agrupa el resumen fusionado por Mes y Tipo de Día,
+    y ordena por Días trabajados (descendente) y luego Promedio de jornada (descendente).
+    """
+    resumen_organizado = defaultdict(lambda: defaultdict(list))
+
+    for row in resumen_fusionado:
+        # Calcular horas promedio de jornada
+        promedio_jornada = row["Total_horas"] / row["Dias_trabajados"] if row["Dias_trabajados"] else 0.0
+
+        resumen_organizado[row["Mes"]][row["Tipo_dia"]].append({
+            "Nombre": row["Nombre"],
+            "Dias_trabajados": row["Dias_trabajados"],
+            "Total_horas": row["Total_horas"],
+            "Promedio_jornada": promedio_jornada
+        })
+
+    # Ordenar dentro de cada grupo
+    for mes, tipos_dia in resumen_organizado.items():
+        for tipo, registros in tipos_dia.items():
+            registros.sort(
+                key=lambda x: (x['Dias_trabajados'], x['Promedio_jornada']), 
+                reverse=True
+            )
+
+    return {mes: dict(tipos_dia) for mes, tipos_dia in resumen_organizado.items()}
