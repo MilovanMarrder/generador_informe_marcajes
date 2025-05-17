@@ -1,6 +1,28 @@
 import tabula
 import xlrd
 import pandas as pd
+from google.colab import files
+import os
+
+def cargar_historial():
+    # Solicita al usuario que cargue un archivo
+    print("Por favor, selecciona un archivo Excel (.xlsx/.xls) o PDF (.pdf):")
+    uploaded = files.upload()
+
+    # Solo se admite un archivo a la vez
+    if len(uploaded) != 1:
+        raise ValueError("Por favor, sube un solo archivo.")
+
+    filename = list(uploaded.keys())[0]
+    extension = os.path.splitext(filename)[1].lower()
+
+    # Validar extensión del archivo
+    if extension not in ['.xlsx', '.xls', '.pdf']:
+        raise ValueError("Tipo de archivo no permitido. Solo se permiten archivos .xlsx, .xls o .pdf")
+
+    print(f"Archivo '{filename}' cargado correctamente.")
+    return filename
+
 
 
 def load_pdf(path: str) -> pd.DataFrame:
