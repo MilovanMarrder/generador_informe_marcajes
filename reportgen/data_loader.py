@@ -1,6 +1,43 @@
 import tabula
 import xlrd
 import pandas as pd
+from google.colab import files
+import os
+
+
+def cargar_historial():
+    # Solicita al usuario que cargue un archivo
+    print("Por favor, selecciona un archivo Excel (.xlsx/.xls) o PDF (.pdf):")
+    uploaded = files.upload()
+
+    # Solo se admite un archivo a la vez
+    if len(uploaded) != 1:
+        raise ValueError("Por favor, sube un solo archivo.")
+
+    filename = list(uploaded.keys())[0]
+    extension = os.path.splitext(filename)[1].lower()
+
+    # Validar extensión del archivo
+    if extension not in ['.xlsx', '.xls', '.pdf']:
+        raise ValueError("Tipo de archivo no permitido. Solo se permiten archivos .xlsx, .xls o .pdf")
+
+    print(f"Archivo '{filename}' cargado correctamente.")
+    return filename
+
+import os
+
+def procesar_archivo(filename):
+    # Obtener la extensión del archivo
+    extension = os.path.splitext(filename)[1].lower()
+
+    if extension in ['.xlsx', '.xls']:
+        print("Procesando archivo Excel...")
+        return leer_excel(filename)
+    elif extension == '.pdf':
+        print("Procesando archivo PDF...")
+        return load_pdf(filename)
+    else:
+        raise ValueError("Extensión no soportada para procesamiento.")
 
 
 def load_pdf(path: str) -> pd.DataFrame:
@@ -12,23 +49,8 @@ def load_pdf(path: str) -> pd.DataFrame:
     df.drop(columns=[col for col in df.columns if 'Unnamed' in col], inplace=True, errors='ignore')
     df['Fecha/Hora'] = pd.to_datetime(df['Fecha/Hora'], errors='coerce')
     return df
-import tkinter as tk
-from tkinter import filedialog
 
-def seleccionar_pdf_gui() -> str:
-    """
-    Muestra un cuadro de diálogo para seleccionar un archivo PDF.
-    """
-    root = tk.Tk()
-    root.withdraw()  # Oculta la ventana principal
-    ruta_archivo = filedialog.askopenfilename(
-        title="Seleccionar archivo PDF",
-        filetypes=[("Archivos PDF", "*.pdf")],
-        initialdir="data"
-    )
-    if not ruta_archivo:
-        raise FileNotFoundError("No se seleccionó ningún archivo.")
-    return ruta_archivo
+
 
 def leer_excel(archivo):
     # Lee el archivo Excel

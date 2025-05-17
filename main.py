@@ -1,4 +1,4 @@
-from reportgen.data_loader import load_pdf, seleccionar_pdf_gui, leer_excel
+from reportgen.data_loader import procesar_archivo, cargar_historial
 from reportgen.processing import compute_basic_columns, fechas_inicio_fin, get_detalles_marcajes, detect_outliers_jornada, compute_outliers_por_persona, compute_resumen_mensual, construir_resumen_fusionado, agrupar_resumen_por_mes, agrupar_resumen_por_mes_y_tipo_dia
 from reportgen.analytics import summary_general, summary_employees
 from reportgen.clustering import compute_features, cluster_employees, generate_latex_cluster_table, generate_latex_employees_by_cluster
@@ -7,13 +7,9 @@ from reportgen.templating import render_report
 
 import os
 
-# 1. Cargar datos
-# pdf_path = seleccionar_pdf_gui()
-# df = load_pdf(pdf_path)
-df = leer_excel("data/MARCAJE MILOVAN MARRDER 2022.xls")
-print('Cargando datos...')
-print(f"Total de registros: {len(df)}")
+cargar_historial()
 
+df = procesar_archivo(archivo)
 
 print('Procesando datos...')
 print(f"Total de registros después de limpieza: {len(df)}")
