@@ -3,8 +3,7 @@ import xlrd
 import pandas as pd
 from google.colab import files
 import os
-import tkinter as tk
-from tkinter import filedialog
+
 
 def cargar_historial():
     # Solicita al usuario que cargue un archivo
@@ -52,20 +51,6 @@ def load_pdf(path: str) -> pd.DataFrame:
     return df
 
 
-def seleccionar_pdf_gui() -> str:
-    """
-    Muestra un cuadro de diálogo para seleccionar un archivo PDF.
-    """
-    root = tk.Tk()
-    root.withdraw()  # Oculta la ventana principal
-    ruta_archivo = filedialog.askopenfilename(
-        title="Seleccionar archivo PDF",
-        filetypes=[("Archivos PDF", "*.pdf")],
-        initialdir="data"
-    )
-    if not ruta_archivo:
-        raise FileNotFoundError("No se seleccionó ningún archivo.")
-    return ruta_archivo
 
 def leer_excel(archivo):
     # Lee el archivo Excel
