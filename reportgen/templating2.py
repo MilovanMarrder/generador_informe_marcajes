@@ -41,10 +41,10 @@ LATEX_TEMPLATE = r"""
 \fancyhf{}
 \renewcommand{\headrulewidth}{1pt}
 \renewcommand{\footrulewidth}{1pt}
-\fancyhead[L]{\textcolor{corporativo}{\textbf{Hospital María Especialidades Pediátricas}}}
-\fancyhead[R]{\textcolor{corporativo}{\textbf{Reporte Jornadas de Trabajo}}}
+\fancyhead[L]{\textcolor{corporativo}{\textbf{TechSolutions S.A.}}}
+\fancyhead[R]{\textcolor{corporativo}{\textbf{Reporte de Tiempo}}}
 \fancyfoot[C]{\textcolor{corporativo}{\thepage}}
-\fancyfoot[L]{\textcolor{corporativo}{departamento}}
+\fancyfoot[L]{\textcolor{corporativo}{Confidencial}}
 \fancyfoot[R]{\textcolor{corporativo}{Marzo 2025}}
 
 % Estilos de títulos
@@ -100,38 +100,29 @@ LATEX_TEMPLATE = r"""
   \centering
   \vspace*{2cm}
 
-  {\Huge\bfseries\textcolor{corporativo}{Reporte de Jornadas en {{ departamento }}}\par}
+  {\Huge\bfseries\textcolor{corporativo}{REPORTE DE TIEMPOS DE TRABAJO}\par}
   \vspace{1cm}
   {\color{gray}\rule{\textwidth}{0.4pt}\par}
   \vspace{1cm}
   {\Large\bfseries REPORTE DE\par}
   \vspace{0.5cm}
-  {\large Per\'iodo Analizado: {{ inicio_fechas }} - {{ final_fechas }}\par}
+  {\large Per\'iodo Analizado: {{inicio_fechas}} - {{final_fechas}}\par}
 
-  \vspace{1cm}
-
-  {\large\bfseries Colaboradores analizados:\par}
-  \begin{itemize}
-    {% for empleado in empleados %}
-      \item {{ empleado }}
-    {% endfor %}
-  \end{itemize}
-
-  \vspace{2cm}
+  \vspace{4cm}
 
   \begin{tabular}{>{\bfseries}r @{\hspace{1em}} l}
-  Informe elaborado por: & Departamento de Talento Humano \\
+  Informe elaborado por: & Departamento de Recursos Humanos \\
   Fecha de elaboraci\'on: & \today \\
+  Clasificaci\'on: & \textcolor{corporativo}{Confidencial} \\
   \end{tabular}
 
   \vfill
 
   {\color{gray}\rule{0.6\textwidth}{0.4pt}\par}
   \vspace{0.5cm}
-  {\small \textcolor{gray}{AutoProcesos Marrder}}
+  {\small \textcolor{gray}{TechSolutions S.A. - Innovaci\'on y Resultados}}
   \vspace*{1cm}
 \end{titlepage}
-
 
 \tableofcontents
 \clearpage

@@ -114,7 +114,7 @@ def extraer_contexto_general(df: pd.DataFrame) -> dict:
     contexto = {
         'empleados': sorted(df['Nombre'].dropna().unique()),
         'meses': sorted(df['Mes'].dropna().unique()),
-        'departamentos': sorted(df['Departamento'].dropna().unique()) if 'Departamento' in df.columns else [],
+        'departamento': sorted(df['Departamento'].dropna().unique()) if 'Departamento' in df.columns else [],
         'inicio': df['Fecha'].min(),
         'fin': df['Fecha'].max()
     }
