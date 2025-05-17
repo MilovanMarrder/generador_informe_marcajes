@@ -68,6 +68,8 @@ def leer_excel(archivo):
     # Elimina columnas completamente vacías
     df = df.dropna(axis=1, how='all')
     
+    df.rename(columns={"Nro. de usuario": "ID"}, inplace=True)
+    
     return df
 
 def transform_df(df: pd.DataFrame) -> pd.DataFrame:
@@ -81,7 +83,7 @@ def transform_df(df: pd.DataFrame) -> pd.DataFrame:
     df['Fecha'] = df['Fecha/Hora'].dt.date
 
     # Agrupación por persona y fecha
-    agrupado = df.sort_values('Fecha/Hora').groupby(['Nombre', 'Fecha'])
+    agrupado = df.sort_values('Fecha/Hora').groupby(['Departamento','ID','Nombre', 'Fecha'])
 
     # Extraer primera y última marcación por día
     tabla = agrupado['Fecha/Hora'].agg(Entrada='first', Salida='last').reset_index()
@@ -104,3 +106,14 @@ def transform_df(df: pd.DataFrame) -> pd.DataFrame:
     tabla['Fin_de_semana'] = tabla['Dia_semana'] >= 5
 
     return tabla
+
+def extraer_contexto_general(df: pd.DataFrame) -> dict:
+    """
+    Extrae listas únicas de empleados, meses y departamentos del dataframe procesado.
+    """
+    contexto = {
+        'empleados': sorted(df['Nombre'].dropna().unique()),
+        'meses': sorted(df['Mes'].dropna().unique()),
+        'departamentos': sorted(df['Departamento'].dropna().unique()) if 'Departamento' in df.columns else []
+    }
+    return contexto
