@@ -103,25 +103,24 @@ LATEX_TEMPLATE = r"""
   {\Huge\bfseries\textcolor{corporativo}{Reporte de Jornadas en {{ departamento }}}\par}
   \vspace{1cm}
   {\color{gray}\rule{\textwidth}{0.4pt}\par}
-  \vspace{1cm}
-  {\Large\bfseries REPORTE DE\par}
   \vspace{0.5cm}
   {\large Per\'iodo Analizado: {{ inicio_fechas }} - {{ final_fechas }}\par}
 
   \vspace{1cm}
 
   {\large\bfseries Colaboradores analizados:\par}
-  \begin{itemize}
+  \begin{itemize*}
+    \centering
     {% for empleado in empleados %}
       \item {{ empleado }}
     {% endfor %}
-  \end{itemize}
+  \end{itemize*}
 
   \vspace{2cm}
 
   \begin{tabular}{>{\bfseries}r @{\hspace{1em}} l}
-  Informe elaborado por: & Departamento de Talento Humano \\
-  Fecha de elaboraci\'on: & \today \\
+  Informe generado por: & Departamento de Talento Humano \\
+  Fecha de generaci\'on: & \today \\
   \end{tabular}
 
   \vfill
