@@ -3,15 +3,6 @@ from datetime import datetime
 from collections import defaultdict
 
 
-def fechas_inicio_fin(df: pd.DataFrame) -> dict:
-    """
-    Diccionario con fechas de inicio y fin de los datos.
-    """
-    return {
-        'inicio': df['Fecha/Hora'].min(),
-        'fin': df['Fecha/Hora'].max()
-    }
-
 
 def get_detalles_marcajes(tabla: pd.DataFrame) -> dict:
     """
