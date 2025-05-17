@@ -223,43 +223,6 @@ LATEX_TEMPLATE = r"""
 \clearpage
 {% endfor %}
 
-\section{An\'alisis de Grupos de Empleados (Semana Laboral)}
-
-\subsection{Variables utilizadas para formar los grupos}
-
-\infobox{Criterios de agrupaci\'on}{
-Se han utilizado las siguientes variables:
-\begin{itemize}
-  \item \textbf{Duraci\'on promedio de jornada}
-  \item \textbf{D\'ias trabajados}
-  \item \textbf{Variabilidad de jornada}
-\end{itemize}
-}
-
-{{ tabla_clusters_semana }}
-
-{{ empleados_clusters_semana }}
-
-{% if tabla_clusters_finde %}
-
-\clearpage
-\section{An\'alisis de Grupos de Empleados (Fines de Semana)}
-
-\subsection{Variables utilizadas para formar los grupos}
-
-\infobox{Criterios de agrupaci\'on}{
-Se han utilizado las mismas variables:
-\begin{itemize}
-  \item \textbf{Duraci\'on promedio de jornada}
-  \item \textbf{D\'ias trabajados}
-  \item \textbf{Variabilidad de jornada}
-\end{itemize}
-}
-
-{{ tabla_clusters_finde }}
-
-{{ empleados_clusters_finde }}
-{% endif %}
 
 \end{document}
 """
