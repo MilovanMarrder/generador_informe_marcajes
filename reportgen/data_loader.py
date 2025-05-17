@@ -3,7 +3,7 @@ import xlrd
 import pandas as pd
 from google.colab import files
 import os
-
+from reportgen.processing import compute_resumen_mensual 
 
 def cargar_historial():
     # Solicita al usuario que cargue un archivo
