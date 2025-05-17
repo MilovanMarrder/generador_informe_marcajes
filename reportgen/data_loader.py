@@ -3,6 +3,8 @@ import xlrd
 import pandas as pd
 from google.colab import files
 import os
+import tkinter as tk
+from tkinter import filedialog
 
 def cargar_historial():
     # Solicita al usuario que cargue un archivo
@@ -23,6 +25,20 @@ def cargar_historial():
     print(f"Archivo '{filename}' cargado correctamente.")
     return filename
 
+import os
+
+def procesar_archivo(filename):
+    # Obtener la extensión del archivo
+    extension = os.path.splitext(filename)[1].lower()
+
+    if extension in ['.xlsx', '.xls']:
+        print("Procesando archivo Excel...")
+        return leer_excel(filename)
+    elif extension == '.pdf':
+        print("Procesando archivo PDF...")
+        return load_pdf(filename)
+    else:
+        raise ValueError("Extensión no soportada para procesamiento.")
 
 
 def load_pdf(path: str) -> pd.DataFrame:
@@ -34,8 +50,7 @@ def load_pdf(path: str) -> pd.DataFrame:
     df.drop(columns=[col for col in df.columns if 'Unnamed' in col], inplace=True, errors='ignore')
     df['Fecha/Hora'] = pd.to_datetime(df['Fecha/Hora'], errors='coerce')
     return df
-import tkinter as tk
-from tkinter import filedialog
+
 
 def seleccionar_pdf_gui() -> str:
     """
