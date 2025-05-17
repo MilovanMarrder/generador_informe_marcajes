@@ -1,0 +1,8 @@
+pandas
+tabula-py
+jinja2
+scikit-learn
+pillow
+openpyxl
+numpy
+xlrd
