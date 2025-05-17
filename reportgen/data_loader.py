@@ -32,13 +32,13 @@ def procesar_archivo(filename):
 
     if extension in ['.xlsx', '.xls']:
         print("Procesando archivo Excel...")
-        return leer_excel(filename)
+        df = leer_excel(filename)
     elif extension == '.pdf':
         print("Procesando archivo PDF...")
-        return load_pdf(filename)
+        df = load_pdf(filename)
     else:
         raise ValueError("Extensión no soportada para procesamiento.")
-
+    return transform_df(df)
 
 def load_pdf(path: str) -> pd.DataFrame:
     """
@@ -69,3 +69,38 @@ def leer_excel(archivo):
     df = df.dropna(axis=1, how='all')
     
     return df
+
+def transform_df(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Procesa el dataframe de marcajes para obtener columnas básicas:
+    Entrada, Salida, Jornada, Mes, Día de semana, Fin de semana, Estado de marcaje (completo/incompleto).
+    """
+    # Asegura formato de fecha y capitaliza nombres
+    df['Fecha/Hora'] = pd.to_datetime(df['Fecha/Hora'], errors='coerce')
+    df['Nombre'] = df['Nombre'].str.title()
+    df['Fecha'] = df['Fecha/Hora'].dt.date
+
+    # Agrupación por persona y fecha
+    agrupado = df.sort_values('Fecha/Hora').groupby(['Nombre', 'Fecha'])
+
+    # Extraer primera y última marcación por día
+    tabla = agrupado['Fecha/Hora'].agg(Entrada='first', Salida='last').reset_index()
+
+    # Clasificar registros incompletos (cuando entrada == salida)
+    tabla['Estado'] = tabla.apply(
+        lambda row: 'Incompleto' if row['Entrada'] == row['Salida'] else 'Completo',
+        axis=1
+    )
+
+    # Calcular jornada solo si es completo
+    tabla['Jornada'] = tabla.apply(
+        lambda row: row['Salida'] - row['Entrada'] if row['Estado'] == 'Completo' else pd.NaT,
+        axis=1
+    )
+
+    # Agregar columnas adicionales
+    tabla['Mes'] = pd.to_datetime(tabla['Fecha']).dt.strftime('%B %Y')
+    tabla['Dia_semana'] = tabla['Entrada'].dt.weekday
+    tabla['Fin_de_semana'] = tabla['Dia_semana'] >= 5
+
+    return tabla
