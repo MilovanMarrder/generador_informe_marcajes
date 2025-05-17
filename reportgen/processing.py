@@ -7,6 +7,7 @@ def compute_basic_columns(df: pd.DataFrame) -> pd.DataFrame:
     """
     Agrega columnas: Fecha, Entrada, Salida, Jornada, Mes, Dia_semana, Fin_de_semana.
     """
+    df['Fecha/Hora'] = pd.to_datetime(df['Fecha/Hora'], errors='coerce')
     df['Nombre'] = df['Nombre'].str.title()
     df['Fecha'] = df['Fecha/Hora'].dt.date
     df['tipo'] = df['Fecha/Hora'].apply(
