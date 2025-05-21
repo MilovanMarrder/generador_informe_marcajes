@@ -23,7 +23,7 @@ LATEX_TEMPLATE = r"""
 \usepackage{longtable}
 
 % Definición de colores
-\definecolor{corporativo}{RGB}{180,0,0}
+\definecolor{corporativo}{RGB}{125,0,0}
 \definecolor{grisclaro}{RGB}{245,245,245}
 
 % Configuración de geometría
@@ -45,8 +45,8 @@ LATEX_TEMPLATE = r"""
 \fancyhead[L]{\textcolor{corporativo}{\textbf{Hospital María Especialidades Pediátricas}}}
 \fancyhead[R]{\textcolor{corporativo}{\textbf{Reporte Jornadas de Trabajo}}}
 \fancyfoot[C]{\textcolor{corporativo}{\thepage}}
-\fancyfoot[L]{\textcolor{corporativo}{departamento}}
-\fancyfoot[R]{\textcolor{corporativo}{Marzo 2025}}
+\fancyfoot[L]{\textcolor{corporativo}{ Departamento de {{ departamento }}}}
+\fancyfoot[R]{\textcolor{corporativo}{ {{mes_inicio}} - {{mes_fin}} {{año}}}}
 
 % Estilos de títulos
 \titleformat{\section}
@@ -129,6 +129,7 @@ LATEX_TEMPLATE = r"""
   {\color{gray}\rule{0.6\textwidth}{0.4pt}\par}
   \vspace{0.5cm}
   {\large\bfseries\textcolor{corporativo}{Hospital María Especialidades Pediátricas}\par}
+  {\large\textcolor{corporativo}{\textit{Cambiamos la vida de nuestros pacientitos}}\par}
 \end{titlepage}
 
 
@@ -222,18 +223,14 @@ LATEX_TEMPLATE = r"""
 \clearpage
 
 \section{Detalles de Marcajes}
-
 {% for nombre, meses in detalles_marcajes_por_mes.items() %}
-
 \subsection{ {{ nombre }} }
-
 {% for mes, regs in meses.items() %}
-
 \subsubsection{ {{ mes }} }
-
 {{ nombre }}
 
-\begin{minipage}[t]{0.62\textwidth}
+\begin{tabular}{p{0.62\textwidth}p{0.35\textwidth}}
+% Columna izquierda con la tabla principal
 \mejoradatabla{
 \begin{tabular}{lccc}
 \toprule
@@ -245,9 +242,9 @@ LATEX_TEMPLATE = r"""
 \bottomrule
 \end{tabular}
 }
-\end{minipage}
-\hfill
-\begin{minipage}[t]{0.35\textwidth}
+&
+% Columna derecha con las cajas de información
+\begin{tabular}{c}
 {% if nombre in outliers_por_persona_y_mes and mes in outliers_por_persona_y_mes[nombre] and outliers_por_persona_y_mes[nombre][mes]|length > 0 %}
 \infobox{D\'ias At\'ipicos}{
 \begin{tabular}{lr}
@@ -260,7 +257,8 @@ LATEX_TEMPLATE = r"""
 \bottomrule
 \end{tabular}
 }
-\vspace{1em}
+\\
+\\
 {% endif %}
 
 {% set dias_fin_semana = [] %}
@@ -269,7 +267,6 @@ LATEX_TEMPLATE = r"""
         {% set dias_fin_semana = dias_fin_semana.append(r) or dias_fin_semana %}
     {% endif %}
 {% endfor %}
-
 {% if dias_fin_semana and dias_fin_semana|length > 0 %}
 \infobox{Fines de Semana Trabajados}{
 \begin{tabular}{lr}
@@ -282,7 +279,8 @@ LATEX_TEMPLATE = r"""
 \bottomrule
 \end{tabular}
 }
-\vspace{1em}
+\\
+\\
 {% endif %}
 
 {% set marcajes_incompletos = [] %}
@@ -291,7 +289,6 @@ LATEX_TEMPLATE = r"""
         {% set marcajes_incompletos = marcajes_incompletos.append(r) or marcajes_incompletos %}
     {% endif %}
 {% endfor %}
-
 {% if marcajes_incompletos and marcajes_incompletos|length > 0 %}
 \infobox{D\'ias con Marcaje Incompleto}{
 \begin{tabular}{l}
@@ -304,7 +301,8 @@ LATEX_TEMPLATE = r"""
 \bottomrule
 \end{tabular}
 }
-\vspace{1em}
+\\
+\\
 {% endif %}
 
 \infobox{Resumen del Mes}{
@@ -323,8 +321,8 @@ LATEX_TEMPLATE = r"""
 \bottomrule
 \end{tabular}
 }
-\end{minipage}
-
+\end{tabular}
+\end{tabular}
 \clearpage
 {% endfor %}
 {% endfor %}

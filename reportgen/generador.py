@@ -51,6 +51,8 @@ def generar_informe(df_marcajes: pd.DataFrame, ruta_salida: str = "informe_jorna
         if empleado not in outliers_por_persona_y_mes:
             outliers_por_persona_y_mes[empleado] = {}
     
+    inicio_fechas_v = df_marcajes['Fecha'].min().strftime('%d/%m/%Y') if isinstance(df_marcajes['Fecha'].min(), pd.Timestamp) else df_marcajes['Fecha'].min()
+    final_fechas_v = df_marcajes['Fecha'].max().strftime('%d/%m/%Y') if isinstance(df_marcajes['Fecha'].max(), pd.Timestamp) else df_marcajes['Fecha'].max()
     # Preparar el contexto para la plantilla
     contexto = {
         'departamento': departamento,
@@ -64,7 +66,10 @@ def generar_informe(df_marcajes: pd.DataFrame, ruta_salida: str = "informe_jorna
         'resumen_fusionado': resumen_fusionado,
         # Agregar las nuevas estructuras organizadas por mes
         'detalles_marcajes_por_mes': detalles_marcajes_por_mes,
-        'outliers_por_persona_y_mes': outliers_por_persona_y_mes
+        'outliers_por_persona_y_mes': outliers_por_persona_y_mes,
+        'mes_inicio' : inicio_fechas_v.strftime('%B').capitalize(),
+        'mes_fin' : final_fechas_v.strftime('%B').capitalize(),
+        'año' : inicio_fechas_v.strftime('%Y')
     }
     
     # Renderizar el informe
