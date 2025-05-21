@@ -18,9 +18,13 @@ Este proyecto permite procesar marcajes laborales desde un archivo Excel, analiz
 
 # 📂 Estructura del proyecto
 reportgen/
+
 ├── data_loader.py         # Carga y validación del archivo de marcajes
+
 ├── processing.py          # Procesamiento y análisis de datos
+
 ├── templating.py          # Plantilla LaTeX con Jinja2
+
 ├── generador.py           # Función principal para generar el informe
 
 # 📄 Licencia
