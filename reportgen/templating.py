@@ -262,6 +262,51 @@ LATEX_TEMPLATE = r"""
 }
 \vspace{1em}
 {% endif %}
+
+{% set dias_fin_semana = [] %}
+{% for r in regs %}
+    {% if r['Fecha'].weekday() >= 5 %}
+        {% set dias_fin_semana = dias_fin_semana + [r] %}
+    {% endif %}
+{% endfor %}
+
+{% if dias_fin_semana|length > 0 %}
+\infobox{Fines de Semana Trabajados}{
+\begin{tabular}{lr}
+\toprule
+\rowcolor{grisclaro} \textbf{Fecha} & \textbf{Horas}\\
+\midrule
+{% for r in dias_fin_semana %}
+{{ r['Fecha'].strftime('%Y-%m-%d') }} & {{ "%.2f"|format(r['Jornada'].total_seconds() / 3600) }}\\
+{% endfor %}
+\bottomrule
+\end{tabular}
+}
+\vspace{1em}
+{% endif %}
+
+{% set marcajes_incompletos = [] %}
+{% for r in regs %}
+    {% if r['Jornada'] is defined and r['Jornada'] is not none and r['Jornada'].total_seconds() == 0 %}
+        {% set marcajes_incompletos = marcajes_incompletos + [r] %}
+    {% endif %}
+{% endfor %}
+
+{% if marcajes_incompletos|length > 0 %}
+\infobox{D\'ias con Marcaje Incompleto}{
+\begin{tabular}{l}
+\toprule
+\rowcolor{grisclaro} \textbf{Fecha}\\
+\midrule
+{% for r in marcajes_incompletos %}
+{{ r['Fecha'].strftime('%Y-%m-%d') }}\\
+{% endfor %}
+\bottomrule
+\end{tabular}
+}
+\vspace{1em}
+{% endif %}
+
 \infobox{Resumen del Mes}{
 \begin{tabular}{lr}
 \toprule
