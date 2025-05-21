@@ -1,4 +1,5 @@
 from jinja2 import Template
+from datetime import datetime, timedelta
 
 LATEX_TEMPLATE = r"""
 \documentclass[11pt,a4paper]{article}
@@ -22,7 +23,7 @@ LATEX_TEMPLATE = r"""
 \usepackage{longtable}
 
 % Definición de colores
-\definecolor{corporativo}{RGB}{180,0,0}
+\definecolor{corporativo}{RGB}{125,0,0}
 \definecolor{grisclaro}{RGB}{245,245,245}
 
 % Configuración de geometría
@@ -41,11 +42,11 @@ LATEX_TEMPLATE = r"""
 \fancyhf{}
 \renewcommand{\headrulewidth}{1pt}
 \renewcommand{\footrulewidth}{1pt}
-\fancyhead[L]{\textcolor{corporativo}{\textbf{TechSolutions S.A.}}}
-\fancyhead[R]{\textcolor{corporativo}{\textbf{Reporte de Tiempo}}}
+\fancyhead[L]{\textcolor{corporativo}{\textbf{Hospital María Especialidades Pediátricas}}}
+\fancyhead[R]{\textcolor{corporativo}{\textbf{Reporte Jornadas de Trabajo}}}
 \fancyfoot[C]{\textcolor{corporativo}{\thepage}}
-\fancyfoot[L]{\textcolor{corporativo}{Confidencial}}
-\fancyfoot[R]{\textcolor{corporativo}{Marzo 2025}}
+\fancyfoot[L]{\textcolor{corporativo}{ Departamento de {{ departamento }}}}
+\fancyfoot[R]{\textcolor{corporativo}{ {{mes_inicio}} - {{mes_fin}} {{año}}}}
 
 % Estilos de títulos
 \titleformat{\section}
@@ -100,39 +101,94 @@ LATEX_TEMPLATE = r"""
   \centering
   \vspace*{2cm}
 
-  {\Huge\bfseries\textcolor{corporativo}{REPORTE DE TIEMPOS DE TRABAJO}\par}
+  {\Huge\bfseries\textcolor{corporativo}{Reporte de Jornadas en {{ departamento }}}\par}
   \vspace{1cm}
   {\color{gray}\rule{\textwidth}{0.4pt}\par}
-  \vspace{1cm}
-  {\Large\bfseries EMPRESA MARRDER\par}
   \vspace{0.5cm}
-  {\large Per\'iodo Analizado: {{inicio_fechas}} - {{final_fechas}}\par}
+  {\large Per\'iodo Analizado: {{ inicio_fechas }} - {{ final_fechas }}\par}
 
-  \vspace{4cm}
+  \vspace{1cm}
+
+  {\large\bfseries Colaboradores analizados:\par}
+  \begin{itemize*}
+    \centering
+    {% for empleado in empleados %}
+      \item {{ empleado }}
+    {% endfor %}
+  \end{itemize*}
+
+  \vspace{2cm}
 
   \begin{tabular}{>{\bfseries}r @{\hspace{1em}} l}
-  Informe elaborado por: & Departamento de Recursos Humanos \\
-  Fecha de elaboraci\'on: & \today \\
-  Clasificaci\'on: & \textcolor{corporativo}{Confidencial} \\
+  Informe generado por: & Departamento de Talento Humano \\
+  Fecha de generaci\'on: & \today \\
   \end{tabular}
 
   \vfill
 
   {\color{gray}\rule{0.6\textwidth}{0.4pt}\par}
   \vspace{0.5cm}
-  {\small \textcolor{gray}{TechSolutions S.A. - Innovaci\'on y Resultados}}
-  \vspace*{1cm}
+  {\large\bfseries\textcolor{corporativo}{Hospital María Especialidades Pediátricas}\par}
+  {\large\textcolor{corporativo}{\textit{Cambiamos la vida de nuestros pacientitos}}\par}
 \end{titlepage}
+
 
 \tableofcontents
 \clearpage
 
+{% if empleados|length > 1 %}
 \section{Resumen General}
 
 \infobox{Horas trabajadas por período, tipo de día y empleado}{
   A continuación se presenta el detalle de los días trabajados, horas totales y promedio de jornada por empleado, diferenciando entre días de semana y fines de semana.
 }
 
+{% if resumen_fusionado %}
+% Resumen integrado con todos los meses en una sola tabla
+\subsection{Días de semana}
+
+\vspace{0.5cm}
+\begin{table}[H]
+\centering
+\mejoradatabla{
+\begin{tabular}{>{\bfseries}lllrr}
+\toprule
+\rowcolor{grisclaro} \textbf{Mes} & \textbf{Empleado} & \textbf{Días} & \textbf{Total Hrs} & \textbf{Promedio Jornada}\\
+\midrule
+{% for row in resumen_fusionado %}
+{% if row.Tipo_dia == "Día de semana" %}
+{{ row.Mes }} & {{ row.Nombre }} & {{ row.Dias_trabajados }} & {{ "%.2f"|format(row.Total_horas) }} & {{ "%.2f"|format(row.Total_horas / row.Dias_trabajados) }}\\
+{% endif %}
+{% endfor %}
+\bottomrule
+\end{tabular}
+}
+\caption{Detalle de días de semana para todos los períodos}
+\end{table}
+
+\subsection{Fines de semana}
+
+\vspace{0.5cm}
+\begin{table}[H]
+\centering
+\mejoradatabla{
+\begin{tabular}{>{\bfseries}lllrr}
+\toprule
+\rowcolor{grisclaro} \textbf{Mes} & \textbf{Empleado} & \textbf{Días} & \textbf{Total Hrs} & \textbf{Promedio Jornada}\\
+\midrule
+{% for row in resumen_fusionado %}
+{% if row.Tipo_dia == "Fin de semana" %}
+{{ row.Mes }} & {{ row.Nombre }} & {{ row.Dias_trabajados }} & {{ "%.2f"|format(row.Total_horas) }} & {{ "%.2f"|format(row.Total_horas / row.Dias_trabajados) }}\\
+{% endif %}
+{% endfor %}
+\bottomrule
+\end{tabular}
+}
+\caption{Detalle de fines de semana para todos los períodos}
+\end{table}
+
+{% else %}
+% Formato anterior (por si no está disponible resumen_fusionado)
 {% for mes, tipos_dia in resumen_por_mes_y_tipo_dia.items() %}
 
 \section{ {{ mes }} }
@@ -160,17 +216,21 @@ LATEX_TEMPLATE = r"""
 
 {% endfor %}
 {% endfor %}
+{% endif %}
+{% endif %}
 
 
 \clearpage
 
 \section{Detalles de Marcajes}
-
-{% for nombre, regs in detalles_marcajes.items() %}
-
+{% for nombre, meses in detalles_marcajes_por_mes.items() %}
 \subsection{ {{ nombre }} }
+{% for mes, regs in meses.items() %}
+\subsubsection{ {{ mes }} }
+{{ nombre }}
 
-\begin{minipage}[t]{0.62\textwidth}
+\begin{tabular}{p{0.62\textwidth}p{0.35\textwidth}}
+% Columna izquierda con la tabla principal
 \mejoradatabla{
 \begin{tabular}{lccc}
 \toprule
@@ -182,75 +242,90 @@ LATEX_TEMPLATE = r"""
 \bottomrule
 \end{tabular}
 }
-\end{minipage}
-\hfill
-\begin{minipage}[t]{0.35\textwidth}
+&
+% Columna derecha con las cajas de información
+\begin{tabular}{c}
+{% if nombre in outliers_por_persona_y_mes and mes in outliers_por_persona_y_mes[nombre] and outliers_por_persona_y_mes[nombre][mes]|length > 0 %}
 \infobox{D\'ias At\'ipicos}{
 \begin{tabular}{lr}
 \toprule
 \rowcolor{grisclaro} \textbf{Fecha} & \textbf{Tipo}\\
 \midrule
-{% for o in outliers_por_persona[nombre] %}
+{% for o in outliers_por_persona_y_mes[nombre][mes] %}
 {{ o['Fecha'].strftime('%Y-%m-%d') }} & {{ o['Tipo'] }}\\
 {% endfor %}
 \bottomrule
 \end{tabular}
 }
+\\
+\\
+{% endif %}
 
-\vspace{1em}
-\infobox{Resumen Mensual}{
-\begin{tabular}{lrr}
+{% set dias_fin_semana = [] %}
+{% for r in regs %}
+    {% if r['Fecha'].weekday() >= 5 %}
+        {% set dias_fin_semana = dias_fin_semana.append(r) or dias_fin_semana %}
+    {% endif %}
+{% endfor %}
+{% if dias_fin_semana and dias_fin_semana|length > 0 %}
+\infobox{Fines de Semana Trabajados}{
+\begin{tabular}{lr}
 \toprule
-\rowcolor{grisclaro} \textbf{Mes} & \textbf{Horas} & \textbf{D\'ias}\\
+\rowcolor{grisclaro} \textbf{Fecha} & \textbf{Horas}\\
 \midrule
-{% for m in resumen_mensual[nombre] %}
-{{ m.Mes }} & {{ "%.2f"|format(m.Horas) }} & {{ m.Dias }}\\
+{% for r in dias_fin_semana %}
+{{ r['Fecha'].strftime('%Y-%m-%d') }} & {{ "%.2f"|format(r['Jornada'].total_seconds() / 3600) }}\\
 {% endfor %}
 \bottomrule
 \end{tabular}
 }
-\end{minipage}
+\\
+\\
+{% endif %}
 
+{% set marcajes_incompletos = [] %}
+{% for r in regs %}
+    {% if r['Jornada'] is defined and r['Jornada'].total_seconds() == 0 %}
+        {% set marcajes_incompletos = marcajes_incompletos.append(r) or marcajes_incompletos %}
+    {% endif %}
+{% endfor %}
+{% if marcajes_incompletos and marcajes_incompletos|length > 0 %}
+\infobox{D\'ias con Marcaje Incompleto}{
+\begin{tabular}{l}
+\toprule
+\rowcolor{grisclaro} \textbf{Fecha}\\
+\midrule
+{% for r in marcajes_incompletos %}
+{{ r['Fecha'].strftime('%Y-%m-%d') }}\\
+{% endfor %}
+\bottomrule
+\end{tabular}
+}
+\\
+\\
+{% endif %}
+
+\infobox{Resumen del Mes}{
+\begin{tabular}{lr}
+\toprule
+\rowcolor{grisclaro} \textbf{Total Días} & {{ regs|length }}\\
+\midrule
+\rowcolor{grisclaro} \textbf{Total Horas} &
+{%- set total_horas = namespace(value=0) -%}
+{%- for r in regs -%}
+    {%- if r['Jornada'] is defined and r['Jornada'] is not none -%}
+        {%- set total_horas.value = total_horas.value + r['Jornada'].total_seconds() / 3600 -%}
+    {%- endif -%}
+{%- endfor -%}
+{{ "%.2f"|format(total_horas.value) }}\\
+\bottomrule
+\end{tabular}
+}
+\end{tabular}
+\end{tabular}
 \clearpage
 {% endfor %}
-
-\section{An\'alisis de Grupos de Empleados (Semana Laboral)}
-
-\subsection{Variables utilizadas para formar los grupos}
-
-\infobox{Criterios de agrupaci\'on}{
-Se han utilizado las siguientes variables:
-\begin{itemize}
-  \item \textbf{Duraci\'on promedio de jornada}
-  \item \textbf{D\'ias trabajados}
-  \item \textbf{Variabilidad de jornada}
-\end{itemize}
-}
-
-{{ tabla_clusters_semana }}
-
-{{ empleados_clusters_semana }}
-
-{% if tabla_clusters_finde %}
-
-\clearpage
-\section{An\'alisis de Grupos de Empleados (Fines de Semana)}
-
-\subsection{Variables utilizadas para formar los grupos}
-
-\infobox{Criterios de agrupaci\'on}{
-Se han utilizado las mismas variables:
-\begin{itemize}
-  \item \textbf{Duraci\'on promedio de jornada}
-  \item \textbf{D\'ias trabajados}
-  \item \textbf{Variabilidad de jornada}
-\end{itemize}
-}
-
-{{ tabla_clusters_finde }}
-
-{{ empleados_clusters_finde }}
-{% endif %}
+{% endfor %}
 
 \end{document}
 """

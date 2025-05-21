@@ -1,30 +1,54 @@
 import tabula
 import xlrd
 import pandas as pd
-from google.colab import files
 import os
-
+from reportgen.processing import compute_resumen_mensual 
 
 def cargar_historial():
-    # Solicita al usuario que cargue un archivo
-    print("Por favor, selecciona un archivo Excel (.xlsx/.xls) o PDF (.pdf):")
-    uploaded = files.upload()
 
-    # Solo se admite un archivo a la vez
-    if len(uploaded) != 1:
-        raise ValueError("Por favor, sube un solo archivo.")
+    try:
+        from google.colab import files
+        print("Ejecutando en Google Colab.")
+        # Solicita al usuario que cargue un archivo
+        print("Por favor, selecciona un archivo Excel (.xlsx/.xls) o PDF (.pdf):")
+        uploaded = files.upload()
 
-    filename = list(uploaded.keys())[0]
-    extension = os.path.splitext(filename)[1].lower()
+        # Solo se admite un archivo a la vez
+        if len(uploaded) != 1:
+            raise ValueError("Por favor, sube un solo archivo.")
 
-    # Validar extensión del archivo
-    if extension not in ['.xlsx', '.xls', '.pdf']:
-        raise ValueError("Tipo de archivo no permitido. Solo se permiten archivos .xlsx, .xls o .pdf")
+        filename = list(uploaded.keys())[0]
+        extension = os.path.splitext(filename)[1].lower()
 
-    print(f"Archivo '{filename}' cargado correctamente.")
-    return filename
+        # Validar extensión del archivo
+        if extension not in ['.xlsx', '.xls', '.pdf']:
+            raise ValueError("Tipo de archivo no permitido. Solo se permiten archivos .xlsx, .xls o .pdf")
 
-import os
+        print(f"Archivo '{filename}' cargado correctamente.")
+        return filename
+    except ImportError:
+        print("Ejecutando localmente.")
+        # En tu PC, puedes pedir la ruta del archivo o usar una ruta predeterminada
+        # Opción 1: Pedir al usuario la ruta del archivo
+        # filename = input("Por favor, introduce la ruta completa del archivo (Excel o PDF): ")
+
+        # Opción 2: Usar una ruta predeterminada
+        filename = "data/MARCAJE CONTABILIDAD.pdf" # ¡CAMBIA ESTO!
+        # Asegúrate de que el archivo exista en esta ruta para pruebas locales
+
+        if not os.path.exists(filename):
+            raise FileNotFoundError(f"El archivo '{filename}' no se encontró en la ruta especificada.")
+
+        extension = os.path.splitext(filename)[1].lower()
+
+        # Validar extensión del archivo
+        if extension not in ['.xlsx', '.xls', '.pdf']:
+            raise ValueError("Tipo de archivo no permitido. Solo se permiten archivos .xlsx, .xls o .pdf")
+
+        print(f"Usando archivo local: '{filename}'.")
+        return filename
+
+
 
 def procesar_archivo(filename):
     # Obtener la extensión del archivo
@@ -114,7 +138,7 @@ def extraer_contexto_general(df: pd.DataFrame) -> dict:
     contexto = {
         'empleados': sorted(df['Nombre'].dropna().unique()),
         'meses': sorted(df['Mes'].dropna().unique()),
-        'departamentos': sorted(df['Departamento'].dropna().unique()) if 'Departamento' in df.columns else [],
+        'departamento': sorted(df['Departamento'].dropna().unique()) if 'Departamento' in df.columns else [],
         'inicio': df['Fecha'].min(),
         'fin': df['Fecha'].max()
     }
