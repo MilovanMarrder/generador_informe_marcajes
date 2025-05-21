@@ -149,59 +149,62 @@ def agrupar_resumen_por_mes_y_tipo_dia(resumen_fusionado: list) -> dict:
 
     return {mes: dict(tipos_dia) for mes, tipos_dia in resumen_organizado.items()}
 
+import pandas as pd
+from datetime import timedelta, datetime # Asegúrate de importar datetime
+
 def get_detalles_marcajes_por_mes(tabla: pd.DataFrame) -> dict:
     """
     Convierte el DataFrame de marcajes en un dict:
     {Nombre: {Mes: [registros]}}
     Cada registro es un dict con claves Fecha, Entrada, Salida, Jornada.
     Se asegura de que 'Jornada' sea un objeto datetime.timedelta nativo de Python.
+    Los meses se ordenan cronológicamente.
     """
     detalles = {}
-
-    # Crear una copia para evitar modificar el DataFrame original
     tabla_copia = tabla.copy()
 
-    # Asegurar que Fecha sea datetime para poder extraer el mes
     if not pd.api.types.is_datetime64_any_dtype(tabla_copia['Fecha']):
         tabla_copia['Fecha'] = pd.to_datetime(tabla_copia['Fecha'])
 
-    # Añadir columna de mes
-    tabla_copia['Mes'] = tabla_copia['Fecha'].dt.strftime('%B %Y')
+    # CAMBIO CLAVE: Añadir columna de mes como el primer día del mes
+    tabla_copia['Mes_Ordenable'] = tabla_copia['Fecha'].dt.to_period('M').dt.start_time
 
     for nombre, grp in tabla_copia.groupby('Nombre'):
-        detalles[nombre] = {}
+        # Aquí guardaremos temporalmente los meses para ordenarlos
+        meses_temp = {}
 
-        for mes, mes_grp in grp.groupby('Mes'):
+        # Agrupar por la columna Mes_Ordenable
+        for mes_dt, mes_grp in grp.groupby('Mes_Ordenable'):
             registros = []
             for _, row in mes_grp.iterrows():
-                # Obtener la jornada del DataFrame
                 jornada_pandas = row['Jornada']
-
-                # Convertir a datetime.timedelta nativo de Python
-                # Usamos 'timedelta' directamente ya que lo importamos explícitamente
-                jornada_python = timedelta(seconds=0) # Valor por defecto
+                jornada_python = timedelta(seconds=0)
 
                 if isinstance(jornada_pandas, pd.Timedelta):
-                    # Si ya es un Timedelta de Pandas, convertir a segundos y luego a timedelta de Python
                     jornada_python = timedelta(seconds=jornada_pandas.total_seconds())
                 elif jornada_pandas is not pd.NaT:
-                    # Si no es un Timedelta de Pandas y no es NaT, intentar convertir
                     try:
-                        # Intentar convertir a Timedelta de Pandas primero, luego a Python
                         temp_timedelta = pd.Timedelta(jornada_pandas)
                         jornada_python = timedelta(seconds=temp_timedelta.total_seconds())
                     except Exception as e:
                         print(f"Advertencia: No se pudo convertir Jornada a Timedelta para {nombre}, {row['Fecha']}. Error: {e}")
-                        # Si falla la conversión, jornada_python sigue siendo timedelta(0)
 
                 registros.append({
                     'Fecha': row['Fecha'],
                     'Entrada': row['Entrada'],
                     'Salida': row['Salida'],
-                    'Jornada': jornada_python # Usar el objeto datetime.timedelta nativo
+                    'Jornada': jornada_python
                 })
-            if registros: # Asegurarse de que hay registros para ese mes
-                detalles[nombre][mes] = registros
+            if registros:
+                # Almacenar el nombre legible del mes usando strftime
+                mes_legible = mes_dt.strftime('%B %Y')
+                meses_temp[mes_dt] = {'nombre_legible': mes_legible, 'registros': registros}
+
+        # Ordenar los meses por su clave datetime (mes_dt)
+        detalles[nombre] = {}
+        for mes_dt_ordenado in sorted(meses_temp.keys()):
+            # Usar el nombre legible para la clave del diccionario final
+            detalles[nombre][meses_temp[mes_dt_ordenado]['nombre_legible']] = meses_temp[mes_dt_ordenado]['registros']
 
     return detalles
 
