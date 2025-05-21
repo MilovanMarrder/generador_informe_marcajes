@@ -1,5 +1,5 @@
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, timedelta
 from collections import defaultdict
 
 def get_detalles_marcajes(tabla: pd.DataFrame) -> dict:
@@ -148,3 +148,88 @@ def agrupar_resumen_por_mes_y_tipo_dia(resumen_fusionado: list) -> dict:
             )
 
     return {mes: dict(tipos_dia) for mes, tipos_dia in resumen_organizado.items()}
+
+def get_detalles_marcajes_por_mes(tabla: pd.DataFrame) -> dict:
+    """
+    Convierte el DataFrame de marcajes en un dict:
+    {Nombre: {Mes: [registros]}}
+    Cada registro es un dict con claves Fecha, Entrada, Salida, Jornada.
+    Se asegura de que 'Jornada' sea un objeto datetime.timedelta nativo de Python.
+    """
+    detalles = {}
+
+    # Crear una copia para evitar modificar el DataFrame original
+    tabla_copia = tabla.copy()
+
+    # Asegurar que Fecha sea datetime para poder extraer el mes
+    if not pd.api.types.is_datetime64_any_dtype(tabla_copia['Fecha']):
+        tabla_copia['Fecha'] = pd.to_datetime(tabla_copia['Fecha'])
+
+    # Añadir columna de mes
+    tabla_copia['Mes'] = tabla_copia['Fecha'].dt.strftime('%B %Y')
+
+    for nombre, grp in tabla_copia.groupby('Nombre'):
+        detalles[nombre] = {}
+
+        for mes, mes_grp in grp.groupby('Mes'):
+            registros = []
+            for _, row in mes_grp.iterrows():
+                # Obtener la jornada del DataFrame
+                jornada_pandas = row['Jornada']
+
+                # Convertir a datetime.timedelta nativo de Python
+                # Usamos 'timedelta' directamente ya que lo importamos explícitamente
+                jornada_python = timedelta(seconds=0) # Valor por defecto
+
+                if isinstance(jornada_pandas, pd.Timedelta):
+                    # Si ya es un Timedelta de Pandas, convertir a segundos y luego a timedelta de Python
+                    jornada_python = timedelta(seconds=jornada_pandas.total_seconds())
+                elif jornada_pandas is not pd.NaT:
+                    # Si no es un Timedelta de Pandas y no es NaT, intentar convertir
+                    try:
+                        # Intentar convertir a Timedelta de Pandas primero, luego a Python
+                        temp_timedelta = pd.Timedelta(jornada_pandas)
+                        jornada_python = timedelta(seconds=temp_timedelta.total_seconds())
+                    except Exception as e:
+                        print(f"Advertencia: No se pudo convertir Jornada a Timedelta para {nombre}, {row['Fecha']}. Error: {e}")
+                        # Si falla la conversión, jornada_python sigue siendo timedelta(0)
+
+                registros.append({
+                    'Fecha': row['Fecha'],
+                    'Entrada': row['Entrada'],
+                    'Salida': row['Salida'],
+                    'Jornada': jornada_python # Usar el objeto datetime.timedelta nativo
+                })
+            if registros: # Asegurarse de que hay registros para ese mes
+                detalles[nombre][mes] = registros
+
+    return detalles
+
+
+
+
+def compute_outliers_por_persona_y_mes(outliers: pd.DataFrame) -> dict:
+    """
+    Agrupa el DataFrame de outliers por Nombre y Mes, devuelve:
+    {Nombre: {Mes: [registros]}}
+    """
+    if outliers is None or outliers.empty:
+        return {}
+    
+    # Crear una copia para evitar modificar el DataFrame original    
+    outliers_copia = outliers.copy()
+        
+    # Asegurar que Fecha sea datetime para poder extraer el mes
+    if not pd.api.types.is_datetime64_any_dtype(outliers_copia['Fecha']):
+        outliers_copia['Fecha'] = pd.to_datetime(outliers_copia['Fecha'])
+    
+    # Añadir columna de mes
+    outliers_copia['Mes'] = outliers_copia['Fecha'].dt.strftime('%B %Y')
+    
+    resultado = {}
+    for nombre, grp in outliers_copia.groupby('Nombre'):
+        resultado[nombre] = {}
+        for mes, mes_grp in grp.groupby('Mes'):
+            resultado[nombre][mes] = mes_grp.to_dict('records')
+            
+    return resultado

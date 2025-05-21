@@ -1,4 +1,5 @@
 from jinja2 import Template
+from datetime import datetime, timedelta
 
 LATEX_TEMPLATE = r"""
 \documentclass[11pt,a4paper]{article}
@@ -127,8 +128,7 @@ LATEX_TEMPLATE = r"""
 
   {\color{gray}\rule{0.6\textwidth}{0.4pt}\par}
   \vspace{0.5cm}
-  {\small \textcolor{gray}{AutoProcesos Marrder}}
-  \vspace*{1cm}
+  {\large\bfseries\textcolor{corporativo}{Hospital María Especialidades Pediátricas}\par}
 \end{titlepage}
 
 
@@ -223,9 +223,15 @@ LATEX_TEMPLATE = r"""
 
 \section{Detalles de Marcajes}
 
-{% for nombre, regs in detalles_marcajes.items() %}
+{% for nombre, meses in detalles_marcajes_por_mes.items() %}
 
 \subsection{ {{ nombre }} }
+
+{% for mes, regs in meses.items() %}
+
+\subsubsection*{ {{ mes }} }
+
+{{ nombre }}
 
 \begin{minipage}[t]{0.62\textwidth}
 \mejoradatabla{
@@ -242,27 +248,33 @@ LATEX_TEMPLATE = r"""
 \end{minipage}
 \hfill
 \begin{minipage}[t]{0.35\textwidth}
+{% if nombre in outliers_por_persona_y_mes and mes in outliers_por_persona_y_mes[nombre] and outliers_por_persona_y_mes[nombre][mes]|length > 0 %}
 \infobox{D\'ias At\'ipicos}{
 \begin{tabular}{lr}
 \toprule
 \rowcolor{grisclaro} \textbf{Fecha} & \textbf{Tipo}\\
 \midrule
-{% for o in outliers_por_persona[nombre] %}
+{% for o in outliers_por_persona_y_mes[nombre][mes] %}
 {{ o['Fecha'].strftime('%Y-%m-%d') }} & {{ o['Tipo'] }}\\
 {% endfor %}
 \bottomrule
 \end{tabular}
 }
-
 \vspace{1em}
-\infobox{Resumen Mensual}{
-\begin{tabular}{lrr}
+{% endif %}
+\infobox{Resumen del Mes}{
+\begin{tabular}{lr}
 \toprule
-\rowcolor{grisclaro} \textbf{Mes} & \textbf{Horas} & \textbf{D\'ias}\\
+\rowcolor{grisclaro} \textbf{Total Días} & {{ regs|length }}\\
 \midrule
-{% for m in resumen_mensual[nombre] %}
-{{ m.Mes }} & {{ "%.2f"|format(m.Horas) }} & {{ m.Dias }}\\
-{% endfor %}
+\rowcolor{grisclaro} \textbf{Total Horas} &
+{%- set total_horas = namespace(value=0) -%}
+{%- for r in regs -%}
+    {%- if r['Jornada'] is defined and r['Jornada'] is not none -%}
+        {%- set total_horas.value = total_horas.value + r['Jornada'].total_seconds() / 3600 -%}
+    {%- endif -%}
+{%- endfor -%}
+{{ "%.2f"|format(total_horas.value) }}\\
 \bottomrule
 \end{tabular}
 }
@@ -270,7 +282,7 @@ LATEX_TEMPLATE = r"""
 
 \clearpage
 {% endfor %}
-
+{% endfor %}
 
 \end{document}
 """
