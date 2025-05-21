@@ -1,5 +1,5 @@
-from templating import render_report
-from processing import (
+from reportgen.templating import render_report
+from reportgen.processing import (
     get_detalles_marcajes, 
     compute_outliers_por_persona,
     compute_resumen_mensual,
