@@ -78,13 +78,13 @@ def load_pdf(path: str) -> pd.DataFrame:
 
 def leer_excel(archivo):
     # Lee el archivo Excel
-    df_raw = pd.read_excel(archivo, engine='xlrd', header=None)
+    df_raw = pd.read_excel(archivo, engine='openpyxl', header=None)
     
     # Busca la fila que contiene 'Departamento'
     start_row = df_raw[df_raw.apply(lambda row: row.astype(str).str.contains('Departamento').any(), axis=1)].index[0]
     
     # Lee el archivo nuevamente, comenzando desde la fila encontrada
-    df = pd.read_excel(archivo, engine='xlrd', header=start_row)
+    df = pd.read_excel(archivo, engine='openpyxl', header=start_row)
     
     # Filtra las filas donde 'Nombre' no es nulo
     df = df[df['Nombre'].notna()]
