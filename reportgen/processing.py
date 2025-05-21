@@ -3,7 +3,6 @@ from datetime import datetime
 from collections import defaultdict
 
 
-
 def get_detalles_marcajes(tabla: pd.DataFrame) -> dict:
     """
     Convierte el DataFrame de marcajes en un dict: Nombre → lista de registros.
@@ -113,7 +112,6 @@ def construir_resumen_fusionado(detalles_marcajes: dict) -> list:
     return resumen.to_dict(orient="records")
 
 
-
 def agrupar_resumen_por_mes(resumen_fusionado: list) -> dict:
     """
     Agrupa el resumen fusionado por Mes.
@@ -122,7 +120,6 @@ def agrupar_resumen_por_mes(resumen_fusionado: list) -> dict:
     for row in resumen_fusionado:
         resumen_por_mes[row['Mes']].append(row)
     return dict(resumen_por_mes)
-
 
 
 def agrupar_resumen_por_mes_y_tipo_dia(resumen_fusionado: list) -> dict:

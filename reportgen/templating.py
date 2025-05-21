@@ -135,12 +135,59 @@ LATEX_TEMPLATE = r"""
 \tableofcontents
 \clearpage
 
+{% if empleados|length > 1 %}
 \section{Resumen General}
 
 \infobox{Horas trabajadas por período, tipo de día y empleado}{
   A continuación se presenta el detalle de los días trabajados, horas totales y promedio de jornada por empleado, diferenciando entre días de semana y fines de semana.
 }
 
+{% if resumen_fusionado %}
+% Resumen integrado con todos los meses en una sola tabla
+\subsection{Días de semana}
+
+\vspace{0.5cm}
+\begin{table}[H]
+\centering
+\mejoradatabla{
+\begin{tabular}{>{\bfseries}lllrr}
+\toprule
+\rowcolor{grisclaro} \textbf{Mes} & \textbf{Empleado} & \textbf{Días} & \textbf{Total Hrs} & \textbf{Promedio Jornada}\\
+\midrule
+{% for row in resumen_fusionado %}
+{% if row.Tipo_dia == "Día de semana" %}
+{{ row.Mes }} & {{ row.Nombre }} & {{ row.Dias_trabajados }} & {{ "%.2f"|format(row.Total_horas) }} & {{ "%.2f"|format(row.Total_horas / row.Dias_trabajados) }}\\
+{% endif %}
+{% endfor %}
+\bottomrule
+\end{tabular}
+}
+\caption{Detalle de días de semana para todos los períodos}
+\end{table}
+
+\subsection{Fines de semana}
+
+\vspace{0.5cm}
+\begin{table}[H]
+\centering
+\mejoradatabla{
+\begin{tabular}{>{\bfseries}lllrr}
+\toprule
+\rowcolor{grisclaro} \textbf{Mes} & \textbf{Empleado} & \textbf{Días} & \textbf{Total Hrs} & \textbf{Promedio Jornada}\\
+\midrule
+{% for row in resumen_fusionado %}
+{% if row.Tipo_dia == "Fin de semana" %}
+{{ row.Mes }} & {{ row.Nombre }} & {{ row.Dias_trabajados }} & {{ "%.2f"|format(row.Total_horas) }} & {{ "%.2f"|format(row.Total_horas / row.Dias_trabajados) }}\\
+{% endif %}
+{% endfor %}
+\bottomrule
+\end{tabular}
+}
+\caption{Detalle de fines de semana para todos los períodos}
+\end{table}
+
+{% else %}
+% Formato anterior (por si no está disponible resumen_fusionado)
 {% for mes, tipos_dia in resumen_por_mes_y_tipo_dia.items() %}
 
 \section{ {{ mes }} }
@@ -168,6 +215,8 @@ LATEX_TEMPLATE = r"""
 
 {% endfor %}
 {% endfor %}
+{% endif %}
+{% endif %}
 
 
 \clearpage
