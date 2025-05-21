@@ -93,6 +93,7 @@ def generar_datos_prueba():
     df['Estado'] = 'Completo'
     
     return df
+    "iniciar ahora en colab"
 
 if __name__ == "__main__":
     ejemplo_generar_reporte()
