@@ -229,7 +229,7 @@ LATEX_TEMPLATE = r"""
 
 {% for mes, regs in meses.items() %}
 
-\subsubsection*{ {{ mes }} }
+\subsubsection{ {{ mes }} }
 
 {{ nombre }}
 
