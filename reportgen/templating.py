@@ -266,11 +266,11 @@ LATEX_TEMPLATE = r"""
 {% set dias_fin_semana = [] %}
 {% for r in regs %}
     {% if r['Fecha'].weekday() >= 5 %}
-        {% set dias_fin_semana = dias_fin_semana + [r] %}
+        {% set dias_fin_semana = dias_fin_semana.append(r) or dias_fin_semana %}
     {% endif %}
 {% endfor %}
 
-{% if dias_fin_semana|length > 0 %}
+{% if dias_fin_semana and dias_fin_semana|length > 0 %}
 \infobox{Fines de Semana Trabajados}{
 \begin{tabular}{lr}
 \toprule
@@ -287,12 +287,12 @@ LATEX_TEMPLATE = r"""
 
 {% set marcajes_incompletos = [] %}
 {% for r in regs %}
-    {% if r['Jornada'] is defined and r['Jornada'] is not none and r['Jornada'].total_seconds() == 0 %}
-        {% set marcajes_incompletos = marcajes_incompletos + [r] %}
+    {% if r['Jornada'] is defined and r['Jornada'].total_seconds() == 0 %}
+        {% set marcajes_incompletos = marcajes_incompletos.append(r) or marcajes_incompletos %}
     {% endif %}
 {% endfor %}
 
-{% if marcajes_incompletos|length > 0 %}
+{% if marcajes_incompletos and marcajes_incompletos|length > 0 %}
 \infobox{D\'ias con Marcaje Incompleto}{
 \begin{tabular}{l}
 \toprule
