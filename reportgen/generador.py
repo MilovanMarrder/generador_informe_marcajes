@@ -73,6 +73,6 @@ def generar_informe(df_marcajes: pd.DataFrame):
     }
 
     # Renderizar el informe
-    render_report(contexto,f'{departamento}_informe_marcajes_{contexto["mes_inicio"]}')
+    render_report(contexto,f'{departamento}_informe_marcajes_{contexto["mes_inicio"]}.tex')
 
     return None

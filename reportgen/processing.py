@@ -62,7 +62,7 @@ def compute_resumen_mensual(detalles_marcajes: dict) -> dict:
         pivot = (
             df.groupby('mes')
               .agg(
-                Horas=('horas_trabajadas', lambda x: x.sum().total_seconds()/3600),
+                Horas=('horas_trabajadas', lambda x: round(x.sum(),2)),
                 Dias=('fecha', lambda x: x.dt.date.nunique())
               )
               .reset_index()

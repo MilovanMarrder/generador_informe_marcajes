@@ -206,7 +206,7 @@ LATEX_TEMPLATE = r"""
 \rowcolor{grisclaro} \textbf{Empleado} & \textbf{Días} & \textbf{Total Hrs} & \textbf{Promedio Jornada}\\
 \midrule
 {% for row in registros %}
-{{ row.Nombre }} & {{ row.Dias_trabajados }} & {{ "%.2f"|format(row.Total_horas) }} & {{ "%.2f"|format(row.Promedio_jornada) }}\\
+{{ row.nombre }} & {{ row.dias_trabajados }} & {{ "%.2f"|format(row.total_horas) }} & {{ "%.2f"|format(row.promedio_jornada) }}\\
 {% endfor %}
 \bottomrule
 \end{tabular}
@@ -234,10 +234,10 @@ LATEX_TEMPLATE = r"""
 \mejoradatabla{
 \begin{tabular}{lccc}
 \toprule
-\rowcolor{grisclaro} \textbf{Fecha} & \textbf{Entrada} & \textbf{Salida} & \textbf{Hrs trabajadas}\\
+\rowcolor{grisclaro} \textbf{fecha} & \textbf{dia} & \textbf{entrada} & \textbf{salida} & \textbf{Hrs}\\
 \midrule
 {% for r in regs %}
-{{ r['Fecha'].strftime('%Y-%m-%d') }} & {{ r['Entrada'].time() }} & {{ r['Salida'].time() }} & {{ "%.2f"|format(r['Jornada'].total_seconds()/3600) }}\\
+{{ r['fecha'].strftime('%Y-%m-%d') }} & {{ (r['entrada'].day_name())[:3] }} & {{ r['entrada'].time() }} & {{ r['salida'].time() }} & {{ "%.2f"|format(r['jornada'].total_seconds()/3600) }}\\
 {% endfor %}
 \bottomrule
 \end{tabular}
@@ -249,10 +249,10 @@ LATEX_TEMPLATE = r"""
 \infobox{D\'ias At\'ipicos}{
 \begin{tabular}{lr}
 \toprule
-\rowcolor{grisclaro} \textbf{Fecha} & \textbf{Tipo}\\
+\rowcolor{grisclaro} \textbf{fecha} & \textbf{Tipo}\\
 \midrule
 {% for o in outliers_por_persona_y_mes[nombre][mes] %}
-{{ o['Fecha'].strftime('%Y-%m-%d') }} & {{ o['Tipo'] }}\\
+{{ o['fecha'].strftime('%Y-%m-%d') }} & {{ o['Tipo'] }}\\
 {% endfor %}
 \bottomrule
 \end{tabular}
@@ -263,7 +263,7 @@ LATEX_TEMPLATE = r"""
 
 {% set dias_fin_semana = [] %}
 {% for r in regs %}
-    {% if r['Fecha'].weekday() >= 5 %}
+    {% if r['fecha'].weekday() >= 5 %}
         {% set dias_fin_semana = dias_fin_semana.append(r) or dias_fin_semana %}
     {% endif %}
 {% endfor %}
@@ -271,10 +271,10 @@ LATEX_TEMPLATE = r"""
 \infobox{Fines de Semana Trabajados}{
 \begin{tabular}{lr}
 \toprule
-\rowcolor{grisclaro} \textbf{Fecha} & \textbf{Horas}\\
+\rowcolor{grisclaro} \textbf{fecha} & \textbf{Horas}\\
 \midrule
 {% for r in dias_fin_semana %}
-{{ r['Fecha'].strftime('%Y-%m-%d') }} & {{ "%.2f"|format(r['Jornada'].total_seconds() / 3600) }}\\
+{{ r['fecha'].strftime('%Y-%m-%d') }} & {{ "%.2f"|format(r['jornada'].total_seconds() / 3600) }}\\
 {% endfor %}
 \bottomrule
 \end{tabular}
@@ -285,7 +285,7 @@ LATEX_TEMPLATE = r"""
 
 {% set marcajes_incompletos = [] %}
 {% for r in regs %}
-    {% if r['Jornada'] is defined and r['Jornada'].total_seconds() == 0 %}
+    {% if r['jornada'] is defined and r['jornada'].total_seconds() == 0 %}
         {% set marcajes_incompletos = marcajes_incompletos.append(r) or marcajes_incompletos %}
     {% endif %}
 {% endfor %}
@@ -293,10 +293,10 @@ LATEX_TEMPLATE = r"""
 \infobox{D\'ias con Marcaje Incompleto}{
 \begin{tabular}{l}
 \toprule
-\rowcolor{grisclaro} \textbf{Fecha}\\
+\rowcolor{grisclaro} \textbf{fecha}\\
 \midrule
 {% for r in marcajes_incompletos %}
-{{ r['Fecha'].strftime('%Y-%m-%d') }}\\
+{{ r['fecha'].strftime('%Y-%m-%d') }}\\
 {% endfor %}
 \bottomrule
 \end{tabular}
@@ -313,8 +313,8 @@ LATEX_TEMPLATE = r"""
 \rowcolor{grisclaro} \textbf{Total Horas} &
 {%- set total_horas = namespace(value=0) -%}
 {%- for r in regs -%}
-    {%- if r['Jornada'] is defined and r['Jornada'] is not none -%}
-        {%- set total_horas.value = total_horas.value + r['Jornada'].total_seconds() / 3600 -%}
+    {%- if r['jornada'] is defined and r['jornada'] is not none -%}
+        {%- set total_horas.value = total_horas.value + r['jornada'].total_seconds() / 3600 -%}
     {%- endif -%}
 {%- endfor -%}
 {{ "%.2f"|format(total_horas.value) }}\\
