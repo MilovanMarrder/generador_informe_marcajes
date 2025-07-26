@@ -17,7 +17,8 @@ def get_detalles_marcajes(tabla: pd.DataFrame) -> dict:
                 'fecha': row['fecha'],
                 'entrada': row['entrada'],
                 'salida': row['salida'],
-                'jornada': row['jornada']
+                'jornada': row['jornada'],
+                'nombre_dia': row['nombre_dia']
             })
         detalles[nombre] = registros
     return detalles

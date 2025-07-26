@@ -1,6 +1,7 @@
 from jinja2 import Template
 from datetime import datetime, timedelta
 
+
 LATEX_TEMPLATE = r"""
 \documentclass[11pt,a4paper]{article}
 
@@ -237,7 +238,7 @@ LATEX_TEMPLATE = r"""
 \rowcolor{grisclaro} \textbf{fecha} & \textbf{dia} & \textbf{entrada} & \textbf{salida} & \textbf{Hrs}\\
 \midrule
 {% for r in regs %}
-{{ r['fecha'].strftime('%Y-%m-%d') }} & {{ (r['entrada'].day_name())[:3] }} & {{ r['entrada'].time() }} & {{ r['salida'].time() }} & {{ "%.2f"|format(r['jornada'].total_seconds()/3600) }}\\
+{{ r['fecha'].strftime('%Y-%m-%d') }} & {{ (r['nombre_dia']) }} & {{ r['entrada'].time() }} & {{ r['salida'].time() }} & {{ "%.2f"|format(r['jornada'].total_seconds()/3600) }}\\
 {% endfor %}
 \bottomrule
 \end{tabular}

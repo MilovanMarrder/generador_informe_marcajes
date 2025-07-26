@@ -12,6 +12,16 @@ from reportgen.processing import (
 import pandas as pd
 from datetime import timedelta
 
+# dia_ES = {
+#     'Mon' : 'Lun',
+#     'Tue' : 'Mar',
+#     'Wed' : 'Mié',
+#     'Thu' : 'Jue',
+#     'Fri' : 'Vie',
+#     'Sat' : 'Sáb',
+#     'Sun' : 'Dom'
+# }
+
 def generar_informe(df_marcajes: pd.DataFrame):
     """
     Genera un informe de jornadas a partir de un DataFrame de marcajes procesado.
@@ -71,7 +81,15 @@ def generar_informe(df_marcajes: pd.DataFrame):
         'mes_fin' : final_fechas_v.strftime('%B').capitalize(),
         'año' : inicio_fechas_v.strftime('%Y')
     }
-
+    # dia_ES = {
+    # 'Mon' : 'Lun',
+    # 'Tue' : 'Mar',
+    # 'Wed' : 'Mié',
+    # 'Thu' : 'Jue',
+    # 'Fri' : 'Vie',
+    # 'Sat' : 'Sáb',
+    # 'Sun' : 'Dom'
+    # }
     # Renderizar el informe
     render_report(contexto,f'{departamento}_informe_marcajes_{contexto["mes_inicio"]}.tex')
 
