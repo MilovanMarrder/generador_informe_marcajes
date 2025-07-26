@@ -1,4 +1,4 @@
-from reportgen.templating import render_report
+from reportgen.templating_2 import render_report
 from reportgen.processing import (
     get_detalles_marcajes, 
     get_detalles_marcajes_por_mes,  # Importar la nueva función
