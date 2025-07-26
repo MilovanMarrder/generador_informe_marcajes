@@ -1,5 +1,6 @@
 from jinja2 import Template
 from datetime import datetime, timedelta
+from reportgen.processing import dias_semana
 
 
 LATEX_TEMPLATE = r"""
@@ -44,7 +45,7 @@ LATEX_TEMPLATE = r"""
 \renewcommand{\headrulewidth}{1pt}
 \renewcommand{\footrulewidth}{1pt}
 \fancyhead[L]{\textcolor{corporativo}{\textbf{Hospital María Especialidades Pediátricas}}}
-\fancyhead[R]{\textcolor{corporativo}{\textbf{Reporte Jornadas de Trabajo}}}
+\fancyhead[R]{\textcolor{corporativo}{\textbf{Reporte Mensual de Asistencias}}}
 \fancyfoot[C]{\textcolor{corporativo}{\thepage}}
 \fancyfoot[L]{\textcolor{corporativo}{ Departamento de {{ departamento }}}}
 \fancyfoot[R]{\textcolor{corporativo}{ {{mes_inicio}} - {{mes_fin}} {{año}}}}
@@ -102,7 +103,7 @@ LATEX_TEMPLATE = r"""
   \centering
   \vspace*{2cm}
 
-  {\Huge\bfseries\textcolor{corporativo}{Reporte de Jornadas en {{ departamento }}}\par}
+  {\Huge\bfseries\textcolor{corporativo}{Reporte Mensual de Asistencias\\ Departamento de {{ departamento }}}\par}
   \vspace{1cm}
   {\color{gray}\rule{\textwidth}{0.4pt}\par}
   \vspace{0.5cm}
@@ -110,7 +111,7 @@ LATEX_TEMPLATE = r"""
 
   \vspace{1cm}
 
-  {\large\bfseries Colaboradores analizados:\par}
+  {\large\bfseries Colaboradores:\par}
   \begin{itemize*}
     \centering
     {% for empleado in empleados %}
@@ -238,7 +239,7 @@ LATEX_TEMPLATE = r"""
 \rowcolor{grisclaro} \textbf{fecha} & \textbf{dia} & \textbf{entrada} & \textbf{salida} & \textbf{Hrs}\\
 \midrule
 {% for r in regs %}
-{{ r['fecha'].strftime('%Y-%m-%d') }} & {{ (r['nombre_dia']) }} & {{ r['entrada'].time() }} & {{ r['salida'].time() }} & {{ "%.2f"|format(r['jornada'].total_seconds()/3600) }}\\
+{{ r['fecha'].strftime('%Y-%m-%d') }} & {{ (r['dia']) }} & {{ r['entrada'].time() }} & {{ r['salida'].time() }} & {{ "%.2f"|format(r['jornada'].total_seconds()/3600) }}\\
 {% endfor %}
 \bottomrule
 \end{tabular}
@@ -272,10 +273,10 @@ LATEX_TEMPLATE = r"""
 \infobox{Fines de Semana Trabajados}{
 \begin{tabular}{lr}
 \toprule
-\rowcolor{grisclaro} \textbf{fecha} & \textbf{Horas}\\
+\rowcolor{grisclaro} \textbf{fecha} & \textbf{dia} & \textbf{Horas}\\
 \midrule
 {% for r in dias_fin_semana %}
-{{ r['fecha'].strftime('%Y-%m-%d') }} & {{ "%.2f"|format(r['jornada'].total_seconds() / 3600) }}\\
+{{ r['fecha'].strftime('%Y-%m-%d') }} & {{ r['dia'] }} & {{ "%.2f"|format(r['jornada'].total_seconds() / 3600) }}\\
 {% endfor %}
 \bottomrule
 \end{tabular}

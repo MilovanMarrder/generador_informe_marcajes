@@ -18,7 +18,7 @@ def get_detalles_marcajes(tabla: pd.DataFrame) -> dict:
                 'entrada': row['entrada'],
                 'salida': row['salida'],
                 'jornada': row['jornada'],
-                'nombre_dia': row['nombre_dia']
+                'dia': row['dia']
             })
         detalles[nombre] = registros
     return detalles
@@ -137,6 +137,7 @@ def agrupar_resumen_por_mes(resumen_fusionado: list) -> dict:
         resumen_por_mes[row['mes']].append(row)
     return dict(resumen_por_mes)
 
+dias_semana = {0: 'Lun', 1: 'Mar', 2: 'Mié', 3: 'Jue', 4: 'Vie', 5: 'Sáb', 6: 'Dom'}
 
 def agrupar_resumen_por_mes_y_tipo_dia(resumen_fusionado: list) -> dict:
     """
@@ -207,7 +208,8 @@ def get_detalles_marcajes_por_mes(tabla: pd.DataFrame) -> dict:
                     'fecha': row['fecha'],
                     'entrada': row['entrada'],
                     'salida': row['salida'],
-                    'jornada': jornada_python
+                    'jornada': jornada_python,
+                    'dia': row['dia']
                 })
             if registros:
                 # Almacenar el nombre legible del mes usando strftime
