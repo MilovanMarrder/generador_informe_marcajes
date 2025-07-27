@@ -159,17 +159,16 @@ LATEX_TEMPLATE = r"""
 \mejoradatabla{
 \begin{tabular}{>{\bfseries}lllrr}
 \toprule
-\rowcolor{grisclaro} \textbf{Mes} & \textbf{Empleado} & \textbf{Días} & \textbf{Total Hrs} & \textbf{Promedio Jornada}\\
+\rowcolor{grisclaro} \textbf{Empleado} & \textbf{Trabajado} & \textbf{Total Hrs} & \textbf{Horas por Día}\\
 \midrule
 {% for row in resumen_fusionado %}
-{% if row.Tipo_dia == "Día de semana" %}
-{{ row.Mes }} & {{ row.Nombre }} & {{ row.Dias_trabajados }} & {{ "%.2f"|format(row.Total_horas) }} & {{ "%.2f"|format(row.Total_horas / row.Dias_trabajados) }}\\
+{% if row.tipo_dia == "Día de semana" %}
+{{ row.nombre }} & {{ row.dias_trabajados }} & {{ "%.2f"|format(row.total_horas) }} & {{ "%.2f"|format(row.total_horas / row.dias_trabajados) }}\\
 {% endif %}
 {% endfor %}
 \bottomrule
 \end{tabular}
 }
-\caption{Detalle de días de semana para todos los períodos}
 \end{table}
 
 \subsection{Fines de semana}
@@ -180,17 +179,16 @@ LATEX_TEMPLATE = r"""
 \mejoradatabla{
 \begin{tabular}{>{\bfseries}lllrr}
 \toprule
-\rowcolor{grisclaro} \textbf{Mes} & \textbf{Empleado} & \textbf{Días} & \textbf{Total Hrs} & \textbf{Promedio Jornada}\\
+\rowcolor{grisclaro} \textbf{Empleado} & \textbf{Trabajado} & \textbf{Total Hrs} & \textbf{Horas por Día}\\
 \midrule
 {% for row in resumen_fusionado %}
-{% if row.Tipo_dia == "Fin de semana" %}
-{{ row.Mes }} & {{ row.Nombre }} & {{ row.Dias_trabajados }} & {{ "%.2f"|format(row.Total_horas) }} & {{ "%.2f"|format(row.Total_horas / row.Dias_trabajados) }}\\
+{% if row.tipo_dia != "Día de semana" %}
+{{ row.nombre }} & {{ row.dias_trabajados }} & {{ "%.2f"|format(row.total_horas) }} & {{ "%.2f"|format(row.total_horas / row.dias_trabajados) }}\\
 {% endif %}
 {% endfor %}
 \bottomrule
 \end{tabular}
 }
-\caption{Detalle de fines de semana para todos los períodos}
 \end{table}
 
 {% else %}
@@ -209,7 +207,7 @@ LATEX_TEMPLATE = r"""
 \mejoradatabla{
 \begin{tabular}{>{\bfseries}lrrr}
 \toprule
-\rowcolor{grisclaro} \textbf{Empleado} & \textbf{Días} & \textbf{Total Hrs} & \textbf{Promedio Jornada}\\
+\rowcolor{grisclaro} \textbf{Empleado} & \textbf{Días} & \textbf{Total Hrs} & \textbf{Horas por Día}\\
 \midrule
 {% for row in registros %}
 {{ row.nombre }} & {{ row.dias_trabajados }} & {{ "%.2f"|format(row.total_horas) }} & {{ "%.2f"|format(row.promedio_jornada) }}\\
@@ -284,7 +282,7 @@ LATEX_TEMPLATE = r"""
 \rowcolor{grisclaro} \textbf{fecha} & \textbf{Tipo}\\
 \midrule
 {% for o in outliers_por_persona_y_mes[nombre][mes] %}
-{{ o['fecha'].strftime('%Y-%m-%d') }} & {{ o['Tipo'] }}\\
+{{ o['fecha'].strftime('%Y-%m-%d') }} & {{ o['tipo'] }}\\
 {% endfor %}
 \bottomrule
 \end{tabular}
