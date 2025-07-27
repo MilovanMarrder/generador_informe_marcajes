@@ -1,3 +1,4 @@
+import os
 from reportgen.templating import render_report
 from reportgen.processing import (
     get_detalles_marcajes, 
@@ -12,7 +13,7 @@ from reportgen.processing import (
 import pandas as pd
 
 
-def generar_informe(df_marcajes: pd.DataFrame):
+def generar_informe(df_marcajes: pd.DataFrame, output_path: str):
     """
     Genera un informe de jornadas a partir de un DataFrame de marcajes procesado.
 
@@ -73,6 +74,14 @@ def generar_informe(df_marcajes: pd.DataFrame):
     }
 
     # Renderizar el informe
-    render_report(contexto,f'{departamento}_informe_marcajes_{contexto["mes_inicio"]}.tex')
+    
+    # Construir el nombre del archivo de forma segura
+    nombre_archivo = f"{departamento}_informe_marcajes_{contexto['mes_inicio']}.tex"
+
+    # Unir la carpeta de salida con el nombre del archivo de forma segura
+    ruta_completa = os.path.join(output_path, nombre_archivo)
+
+    # Llamar a la función
+    render_report(contexto, ruta_completa)
 
     return None

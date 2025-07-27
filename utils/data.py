@@ -62,6 +62,11 @@ def etl_df(ruta: str) -> pd.DataFrame:
     tabla['mes'] = pd.to_datetime(tabla['fecha']).dt.strftime('%B %Y')
     tabla['dia_semana'] = tabla['entrada'].dt.weekday
     tabla['fin_de_semana'] = tabla['dia_semana'] >= 5
+    # 1. Diccionario para mapear
+    dias_semana = {0: 'Lun', 1: 'Mar', 2: 'Mié', 3: 'Jue', 4: 'Vie', 5: 'Sáb', 6: 'Dom'}
+    
+    # 2. Creación de la columna 'dia' usando la columna 'Dia_semana'
+    tabla['dia'] = tabla['dia_semana'].map(dias_semana)
 
     return tabla
 
