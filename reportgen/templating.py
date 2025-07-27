@@ -1,288 +1,362 @@
 from jinja2 import Template
 from datetime import datetime, timedelta
-from reportgen.processing import dias_semana
+# from reportgen.processing import dias_semana
+
 
 LATEX_TEMPLATE = r"""
-% ======================================================================
-% PLANTILLA JINJA2 - ESTILO CORPORATIVO ELEGANTE
-% Creado por: Asistente de IA
-% Fecha: 2024-10-27
-% ======================================================================
 \documentclass[11pt,a4paper]{article}
 
-% --- PAQUETES NECESARIOS ---
+% Paquetes necesarios
+\usepackage{tcolorbox}
 \usepackage[utf8]{inputenc}
-\usepackage[spanish,es-nodecimaldot]{babel}
+\usepackage[spanish]{babel}
 \usepackage{geometry}
 \usepackage{fancyhdr}
-\usepackage[table]{xcolor}
-\usepackage{sectsty}        % Para estilos de sección sencillos
+\usepackage{xcolor}
+\usepackage{titlesec}
+\usepackage{graphicx}
 \usepackage{booktabs}
-\usepackage{longtable}
-\usepackage{tcolorbox}
-\tcbuselibrary{skins}     % Para sombras y estilos avanzados en tcolorbox
 \usepackage{array}
-\usepackage{calc}
-\usepackage{lato}           % Fuente profesional moderna
+\usepackage{multirow}
 \usepackage{enumitem}
 \usepackage{hyperref}
-\renewcommand{\familydefault}{\sfdefault} % Hace que Lato sea la fuente por defecto
+\usepackage{float}
+\usepackage{colortbl}
+\usepackage{longtable}
+\usepackage[table]{xcolor}
 
-% --- CONFIGURACIÓN DE ESTILO ---
-% 1. Desactivamos la numeración de secciones
-\setcounter{secnumdepth}{-1}
+ 
 
-% 2. Paleta de colores corporativa
-\definecolor{primary}{RGB}{45,55,72}      % Gris azulado oscuro
-\definecolor{secondary}{RGB}{113,128,150} % Gris medio
-\definecolor{accent}{RGB}{235, 240, 247}  % Gris muy claro
-\definecolor{text}{RGB}{74,85,104}        % Gris oscuro para texto
-\definecolor{alert}{RGB}{197,48,48}       % Rojo discreto para alertas
+% Definición de colores
+\definecolor{corporativo}{RGB}{45,55,72}
+\definecolor{grisclaro}{RGB}{245,245,245}
+\definecolor{jornadacero}{RGB}{211, 47, 47}
 
-% 3. Geometría de la página
-\geometry{a4paper, margin=2cm, headheight=2cm, footskip=1.5cm}
-
-% 4. Encabezado y pie de página con el nuevo estilo
-\pagestyle{fancy}
-\fancyhf{}
-\renewcommand{\headrulewidth}{0.5pt}
-\renewcommand{\headrule}{\color{secondary!50}\hrule width\headwidth height\headrulewidth}
-\fancyhead[L]{\color{primary}\large\bfseries Hospital María Especialidades Pediátricas}
-\fancyhead[R]{\color{text}\normalsize Reporte de Asistencias}
-\fancyfoot[C]{\color{text}\thepage}
-\fancyfoot[R]{\color{text}{{ mes_inicio }} {{ año }}}
-
-% 5. Estilos de títulos (método sencillo y robusto con sectsty)
-\sectionfont{\normalfont\huge\bfseries\color{primary}}
-\subsectionfont{\normalfont\Large\bfseries\color{primary}}
-\subsubsectionfont{\normalfont\large\bfseries\color{primary}}
-
-% 6. Configuración de hipervínculos
-\hypersetup{
-    colorlinks=true,
-    linkcolor=primary,
-    urlcolor=secondary,
-    citecolor=primary
+% Configuración de geometría
+\geometry{
+  a4paper,
+  top=2.5cm,
+  bottom=2.5cm,
+  left=2.5cm,
+  right=2.5cm,
+  headheight=1.5cm,
+  footskip=1.5cm
 }
 
-% ======================================================================
-% INICIO DEL DOCUMENTO
-% ======================================================================
-\begin{document}
-\color{text} % Color de texto por defecto
+% Encabezado y pie de página
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{1pt}
+\renewcommand{\footrulewidth}{1pt}
+\fancyhead[L]{\textcolor{corporativo}{\textbf{Hospital María Especialidades Pediátricas}}}
+\fancyhead[R]{\textcolor{corporativo}{\textbf{Reporte Mensual de Asistencias}}}
+\fancyfoot[C]{\textcolor{corporativo}{\thepage}}
+\fancyfoot[L]{\textcolor{corporativo}{ Departamento de {{ departamento }}}}
+\fancyfoot[R]{\textcolor{corporativo}{ {{mes_inicio}} {{año}}}}
 
-% --- PÁGINA DE TÍTULO ---
+% Estilos de títulos
+\titleformat{\section}
+  {\normalfont\Large\bfseries\color{corporativo}}
+  {}{0em}{}[\titlerule]
+\titleformat{\subsection}
+  {\normalfont\large\bfseries\color{corporativo}}
+  {}{0em}{}
+
+% Eliminar sangría
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.5em}
+
+% Listas
+\setlist{noitemsep, leftmargin=1.5em}
+
+% Hipervínculos
+\hypersetup{
+  colorlinks=true,
+  linkcolor=corporativo,
+  urlcolor=corporativo
+}
+
+% Sin numeración de secciones
+\renewcommand{\thesection}{}
+\renewcommand{\thesubsection}{}
+
+% Comandos personalizados
+\newcommand{\infobox}[2]{
+  \begin{tcolorbox}[
+    colback=grisclaro,
+    colframe=corporativo,
+    title=#1,
+    fonttitle=\bfseries
+  ]
+#2
+  \end{tcolorbox}
+}
+
+\newcommand{\mejoradatabla}[1]{
+  \renewcommand{\arraystretch}{1.3}
+  \setlength{\tabcolsep}{10pt}
+#1
+  \renewcommand{\arraystretch}{1}
+  \setlength{\tabcolsep}{6pt}
+}
+
+\begin{document}
+
+% --- Página de título ---
 \begin{titlepage}
   \centering
-  \vspace*{3cm}
-  \textcolor{secondary}{\large\bfseries REPORTE MENSUAL DE ASISTENCIAS}
+  \vspace*{2cm}
+
+  {\Huge\bfseries\textcolor{corporativo}{Reporte Mensual de Asistencias\\ Departamento de {{ departamento }}}\par}
+  \vspace{1cm}
+  {\color{gray}\rule{\textwidth}{0.4pt}\par}
   \vspace{0.5cm}
-  \\
-  {\huge\bfseries\color{primary}Departamento de {{ departamento }}\par}
-  \vspace{1.5cm}
-  {\large Período Analizado: {{ inicio_fechas }} - {{ final_fechas }}\par}
-  \vspace{2.5cm}
-  {\large\bfseries\color{primary}Colaboradores Analizados:\par}
-  \vspace{0.5cm}
-  \begin{itemize}[label=\color{secondary}\textbullet, itemsep=5pt, leftmargin=*]
+  {\large Per\'iodo Analizado: {{ inicio_fechas }} - {{ final_fechas }}\par}
+
+  \vspace{1cm}
+
+  {\large\bfseries Colaboradores:\par}
+  \begin{itemize*}
+    \centering
     {% for empleado in empleados %}
       \item {{ empleado }}
     {% endfor %}
-  \end{itemize}
-  \vfill
-  \begin{tabular}{r @{\hspace{1em}} l}
-    \bfseries Informe generado por: & Departamento de Talento Humano \\
-    \bfseries Fecha de generación: & \today \\
+  \end{itemize*}
+
+  \vspace{2cm}
+
+  \begin{tabular}{>{\bfseries}r @{\hspace{1em}} l}
+  Informe generado por: & Departamento de Talento Humano \\
+  Fecha de generaci\'on: & \today \\
   \end{tabular}
+
+  \vfill
+
+  {\color{gray}\rule{0.6\textwidth}{0.4pt}\par}
+  \vspace{0.5cm}
+  {\large\bfseries\textcolor{corporativo}{Hospital María Especialidades Pediátricas}\par}
+  {\large\textcolor{corporativo}{\textit{Cambiamos la vida de nuestros pacientitos}}\par}
 \end{titlepage}
 
-% --- TABLA DE CONTENIDOS ---
+
 \tableofcontents
 \clearpage
 
-% --- PÁGINA DE RESUMEN GENERAL (SI HAY MÁS DE UN EMPLEADO) ---
 {% if empleados|length > 1 %}
 \section{Resumen General}
+
+\infobox{Horas trabajadas por período, tipo de día y empleado}{
+  A continuación se presenta el detalle de los días trabajados, horas totales y promedio de jornada por empleado, diferenciando entre días de semana y fines de semana.
+}
+
+{% if resumen_fusionado %}
+% Resumen integrado con todos los meses en una sola tabla
+\subsection{Días de semana}
+
 \vspace{0.5cm}
-A continuación se presentan las tablas resumen con el total de horas laboradas, segmentado por días de semana y fines de semana.
+\begin{table}[H]
+\centering
+\mejoradatabla{
+\begin{tabular}{>{\bfseries}lllrr}
+\toprule
+\rowcolor{grisclaro} \textbf{Mes} & \textbf{Empleado} & \textbf{Días} & \textbf{Total Hrs} & \textbf{Promedio Jornada}\\
+\midrule
+{% for row in resumen_fusionado %}
+{% if row.Tipo_dia == "Día de semana" %}
+{{ row.Mes }} & {{ row.Nombre }} & {{ row.Dias_trabajados }} & {{ "%.2f"|format(row.Total_horas) }} & {{ "%.2f"|format(row.Total_horas / row.Dias_trabajados) }}\\
+{% endif %}
+{% endfor %}
+\bottomrule
+\end{tabular}
+}
+\caption{Detalle de días de semana para todos los períodos}
+\end{table}
 
-\subsection{Días de Semana}
-\begin{longtable}{l l r r}
-    \toprule
-    \rowcolor{primary}
-    \textcolor{white}{\bfseries Empleado} & 
-    \textcolor{white}{\bfseries Días} & 
-    \textcolor{white}{\bfseries Total Horas} & 
-    \textcolor{white}{\bfseries Promedio Jornada} \\
-    \midrule
-    \endfirsthead
-    {# Lógica para el resumen fusionado (multi-mes) o el normal #}
-    {% if resumen_fusionado %}
-        {% for row in resumen_fusionado if row.Tipo_dia == "Día de semana" %}
-            {{ row.Nombre }} & {{ row.Dias_trabajados }} & {{ "%.2f"|format(row.Total_horas) }} & {{ "%.2f"|format(row.Total_horas / row.Dias_trabajados if row.Dias_trabajados > 0 else 0) }}\\
-        {% endfor %}
-    {% else %}
-        {# Asumimos que la estructura es resumen_por_mes_y_tipo_dia #}
-        {% for mes, tipos_dia in resumen_por_mes_y_tipo_dia.items() %}
-            {% if 'Día de semana' in tipos_dia %}
-                {% for row in tipos_dia['Día de semana'] %}
-                    {{ row.nombre }} & {{ row.dias_trabajados }} & {{ "%.2f"|format(row.total_horas) }} & {{ "%.2f"|format(row.promedio_jornada) }}\\
-                {% endfor %}
-            {% endif %}
-        {% endfor %}
-    {% endif %}
-    \bottomrule
-\end{longtable}
+\subsection{Fines de semana}
 
-\subsection{Fines de Semana}
-\begin{longtable}{l l r r}
-    \toprule
-    \rowcolor{primary}
-    \textcolor{white}{\bfseries Empleado} & 
-    \textcolor{white}{\bfseries Días} & 
-    \textcolor{white}{\bfseries Total Horas} & 
-    \textcolor{white}{\bfseries Promedio Jornada} \\
-    \midrule
-    \endfirsthead
-    {% if resumen_fusionado %}
-        {% for row in resumen_fusionado if row.Tipo_dia == "Fin de semana" %}
-            {{ row.Nombre }} & {{ row.Dias_trabajados }} & {{ "%.2f"|format(row.Total_horas) }} & {{ "%.2f"|format(row.Total_horas / row.Dias_trabajados if row.Dias_trabajados > 0 else 0) }}\\
-        {% endfor %}
-    {% else %}
-        {% for mes, tipos_dia in resumen_por_mes_y_tipo_dia.items() %}
-            {% if 'Fin de semana' in tipos_dia %}
-                {% for row in tipos_dia['Fin de semana'] %}
-                    {{ row.nombre }} & {{ row.dias_trabajados }} & {{ "%.2f"|format(row.total_horas) }} & {{ "%.2f"|format(row.promedio_jornada) }}\\
-                {% endfor %}
-            {% endif %}
-        {% endfor %}
-    {% endif %}
-    \bottomrule
-\end{longtable}
-\clearpage
+\vspace{0.5cm}
+\begin{table}[H]
+\centering
+\mejoradatabla{
+\begin{tabular}{>{\bfseries}lllrr}
+\toprule
+\rowcolor{grisclaro} \textbf{Mes} & \textbf{Empleado} & \textbf{Días} & \textbf{Total Hrs} & \textbf{Promedio Jornada}\\
+\midrule
+{% for row in resumen_fusionado %}
+{% if row.Tipo_dia == "Fin de semana" %}
+{{ row.Mes }} & {{ row.Nombre }} & {{ row.Dias_trabajados }} & {{ "%.2f"|format(row.Total_horas) }} & {{ "%.2f"|format(row.Total_horas / row.Dias_trabajados) }}\\
+{% endif %}
+{% endfor %}
+\bottomrule
+\end{tabular}
+}
+\caption{Detalle de fines de semana para todos los períodos}
+\end{table}
+
+{% else %}
+% Formato anterior (por si no está disponible resumen_fusionado)
+{% for mes, tipos_dia in resumen_por_mes_y_tipo_dia.items() %}
+
+\section{ {{ mes }} }
+
+{% for tipo_dia, registros in tipos_dia.items() %}
+
+\subsection{ {{ tipo_dia }} }
+
+\vspace{0.5cm}
+\begin{table}[H]
+\centering
+\mejoradatabla{
+\begin{tabular}{>{\bfseries}lrrr}
+\toprule
+\rowcolor{grisclaro} \textbf{Empleado} & \textbf{Días} & \textbf{Total Hrs} & \textbf{Promedio Jornada}\\
+\midrule
+{% for row in registros %}
+{{ row.nombre }} & {{ row.dias_trabajados }} & {{ "%.2f"|format(row.total_horas) }} & {{ "%.2f"|format(row.promedio_jornada) }}\\
+{% endfor %}
+\bottomrule
+\end{tabular}
+}
+\caption{Detalle de {{ tipo_dia }} en {{ mes }}}
+\end{table}
+
+{% endfor %}
+{% endfor %}
+{% endif %}
 {% endif %}
 
 
-% --- SECCIÓN DE DETALLES POR EMPLEADO ---
-\section{Detalles por Colaborador}
+\clearpage
+
+\section{Detalles de Marcajes por Colaborador}
 {% for nombre, meses in detalles_marcajes_por_mes.items() %}
-    {% for mes, regs in meses.items() %}
-        \subsection{ {{ nombre }} - ({{ mes }}) }
+\subsection{ {{ nombre }} }
+{% for mes, regs in meses.items() %}
 
-        {# Calculamos los totales del mes para los cuadros de resumen #}
-        {% set ns = namespace(total_horas=0, dias_laborados=0, dias_fds=0) %}
-        {% for r in regs %}
-            {% set ns.total_horas = ns.total_horas + r['jornada'].total_seconds() / 3600 %}
-            {% set ns.dias_laborados = ns.dias_laborados + 1 %}
-            {% if r['dia'] in ['Sáb', 'Dom'] %}
-                {% set ns.dias_fds = ns.dias_fds + 1 %}
-            {% endif %}
-        {% endfor %}
+\begin{tabular}{p{0.6\textwidth}p{0.4\textwidth}}
+% Columna izquierda con la tabla principal
+\mejoradatabla{
+\begin{tabular}{p{2cm} p{0.6cm} p{1.2cm} p{1.2cm} r}
+\toprule
+\rowcolor{grisclaro} \textbf{fecha} & \textbf{dia} & \textbf{entrada} & \textbf{salida} & \textbf{Hrs}\\
+\midrule
 
-        {# Resumen numérico superior #}
-        \begin{center}
-        \begin{tabular}{@{}c@{\hspace{2cm}}c@{\hspace{2cm}}c@{}}
-        \begin{minipage}{3.5cm}\centering
-            {\color{primary}\Huge\bfseries {{ ns.dias_laborados }}}\\
-            {\color{text}\small DÍAS LABORADOS}
-        \end{minipage} &
-        \begin{minipage}{3.5cm}\centering
-            {\color{primary}\Huge\bfseries {{ "%.2f"|format(ns.total_horas) }}}\\
-            {\color{text}\small HORAS TOTALES}
-        \end{minipage} &
-        \begin{minipage}{3.5cm}\centering
-            {\color{primary}\Huge\bfseries {{ "%.2f"|format(ns.total_horas / ns.dias_laborados if ns.dias_laborados > 0 else 0) }}}\\
-            {\color{text}\small PROMEDIO DIARIO (HRS)}
-        \end{minipage}
-        \end{tabular}
-        \end{center}
-        \vspace{1cm}
+{% for r in regs -%}
+{% if r['jornada'].total_seconds() == 0 -%}
+\rowcolor{jornadacero!20}
+{%- else -%}
+\rowcolor{white}
+{%- endif -%}
+{%- if r['dia'] in ['Sáb', 'Dom'] -%}
+% -Fila de fin de semana (color corporativo)
+\rowcolor{corporativo!20}
+ {{ r['fecha'].strftime('%Y-%m-%d') }}  &  {{ r['dia'] }}  &  {{ r['entrada'].time() }}  &  {{ r['salida'].time() }}  &
+    {%- if r['jornada'].total_seconds() == 0 -%}
+        %-Jornada cero en fin de semana: negrita y texto rojo
+         \textcolor{jornadacero}{ {{ "%.2f"|format(r['jornada'].total_seconds()/3600) }} } 
+    {%- else -%}
+        %-Jornada normal en fin de semana: solo negrita
+         {{ "%.2f"|format(r['jornada'].total_seconds()/3600) }} 
+    {%- endif %}
+{%- else -%}
+%---Fila de día de semana (sin negrita)
+{{ r['fecha'].strftime('%Y-%m-%d') }} & {{ r['dia'] }} & {{ r['entrada'].time() }} & {{ r['salida'].time() }} &
+    {%- if r['jornada'].total_seconds() == 0 -%}
 
-        {# Diseño de dos columnas con minipages #}
-        \begin{minipage}[t]{0.58\textwidth}\parindent=0pt
-            \subsubsection*{Registro Detallado de Marcajes}
-            \begin{longtable}{p{2.2cm} p{1.3cm} p{1.7cm} p{1.7cm} r}
-                \toprule
-                \rowcolor{primary}
-                \textcolor{white}{\bfseries Fecha} & 
-                \textcolor{white}{\bfseries Día} & 
-                \textcolor{white}{\bfseries Entrada} & 
-                \textcolor{white}{\bfseries Salida} & 
-                \textcolor{white}{\bfseries Horas} \\
-                \midrule
-                \endfirsthead
-                {% for r in regs -%}
-                    {% if r['jornada'].total_seconds() == 0 -%}
-                        \rowcolor{alert!20}
-                    {%- elif r['dia'] in ['Sáb', 'Dom'] -%}
-                        \rowcolor{accent!60}
-                    {%- endif -%}
-                    
-                    {%- if r['dia'] in ['Sáb', 'Dom'] -%}
-                        \textbf{ {{ r['fecha'].strftime('%Y-%m-%d') }} } & \textbf{ {{ r['dia'] }} } & \textbf{ {{ r['entrada'].time() }} } & \textbf{ {{ r['salida'].time() }} } &
-                    {%- else -%}
-                        {{ r['fecha'].strftime('%Y-%m-%d') }} & {{ r['dia'] }} & {{ r['entrada'].time() }} & {{ r['salida'].time() }} &
-                    {%- endif %}
-                    
-                    {%- if r['jornada'].total_seconds() == 0 -%}
-                        \textcolor{alert}{ {{ "%.2f"|format(r['jornada'].total_seconds()/3600) }} }
-                    {%- elif r['dia'] in ['Sáb', 'Dom'] -%}
-                         \textbf{ {{ "%.2f"|format(r['jornada'].total_seconds()/3600) }} }
-                    {%- else -%}
-                        {{ "%.2f"|format(r['jornada'].total_seconds()/3600) }}
-                    {%- endif -%}
-                \\
-                {% endfor %}
-                \bottomrule
-            \end{longtable}
-            \vspace{0.5cm}
-            \small\color{text}
-            \textbf{Leyenda:} Filas en gris claro (\colorbox{accent!60}{\phantom{XX}}) son fines de semana. Filas en rojo (\colorbox{alert!20}{\phantom{XX}}) requieren verificación.
-        \end{minipage}
-        \hfill
-        \begin{minipage}[t]{0.38\textwidth}\parindent=0pt
-            \subsubsection*{Análisis Mensual}
-            <tcolorbox>[enhanced, colback=accent!25, colframe=accent, boxrule=1pt, arc=2pt, drop shadow southeast]
-                \small\renewcommand{\arraystretch}{1.3}
-                {\bfseries\color{primary}Estadísticas Clave}\par\vspace{2mm}
-                \begin{tabular}{@{}lr@{}}
-                Días laborados: & \textbf{ {{ ns.dias_laborados }} } \\
-                Días semana: & \textbf{ {{ ns.dias_laborados - ns.dias_fds }} } \\
-                Días FDS: & \textbf{ {{ ns.dias_fds }} } \\
-                \addlinespace
-                Total Horas: & \textbf{ {{ "%.2f"|format(ns.total_horas) }} } \\
-                \end{tabular}
-            </tcolorbox>
-            \vspace{4mm}
-            
-            {# Caja de Alertas: combina outliers y marcajes incompletos #}
-            {% set alertas = namespace(items=[]) %}
-            {# 1. Añadir outliers #}
-            {% if nombre in outliers_por_persona_y_mes and mes in outliers_por_persona_y_mes[nombre] %}
-                {% for o in outliers_por_persona_y_mes[nombre][mes] %}
-                    {% set alertas.items = alertas.items + [(o['fecha'].strftime('%d %b'), o['Tipo'])] %}
-                {% endfor %}
-            {% endif %}
-            {# 2. Añadir marcajes incompletos #}
-            {% for r in regs if r['jornada'].total_seconds() == 0 %}
-                 {% set alertas.items = alertas.items + [(r['fecha'].strftime('%d %b'), 'Marcaje 0 hrs')] %}
-            {% endfor %}
+        \textcolor{jornadacero}{ {{ "%.2f"|format(r['jornada'].total_seconds()/3600) }} }
+    {%- else -%}
+        {{ "%.2f"|format(r['jornada'].total_seconds()/3600) }}
+    {%- endif %}
+{%- endif -%}
 
-            {% if alertas.items %}
-            <tcolorbox>[enhanced, colback=accent!25, colframe=accent, boxrule=1pt, arc=2pt, drop shadow southeast]
-                \small\renewcommand{\arraystretch}{1.2}
-                {\bfseries\color{primary}Días con Alertas}\par\vspace{2mm}
-                \begin{tabular}{@{}p{0.4\linewidth} p{0.55\linewidth}@{}}
-                {% for fecha, motivo in alertas.items %}
-                    \textbf{ {{ fecha }} } & {{ motivo }} \\
-                {% endfor %}
-                \end{tabular}
-            </tcolorbox>
-            {% endif %}
-        \end{minipage}
+\\
+{% endfor %}
+\bottomrule
+\end{tabular}
+}
+&
+% Columna derecha con las cajas de información
+\begin{tabular}{c}
+{% if nombre in outliers_por_persona_y_mes and mes in outliers_por_persona_y_mes[nombre] and outliers_por_persona_y_mes[nombre][mes]|length > 0 %}
+\infobox{D\'ias At\'ipicos}{
+\begin{tabular}{p{2cm} p{2cm}}
+\toprule
+\rowcolor{grisclaro} \textbf{fecha} & \textbf{Tipo}\\
+\midrule
+{% for o in outliers_por_persona_y_mes[nombre][mes] %}
+{{ o['fecha'].strftime('%Y-%m-%d') }} & {{ o['Tipo'] }}\\
+{% endfor %}
+\bottomrule
+\end{tabular}
+}
+\\
+\\
+{% endif %}
 
-        \clearpage
-    {% endfor %}
+{% set dias_fin_semana = [] %}
+{% for r in regs %}
+    {% if r['fecha'].weekday() >= 5 %}
+        {% set dias_fin_semana = dias_fin_semana.append(r) or dias_fin_semana %}
+    {% endif %}
+{% endfor %}
+{% if dias_fin_semana and dias_fin_semana|length > 0 %}
+\infobox{Fines de Semana Trabajados}{
+\begin{tabular}{p{1.8cm} p{0.9cm} p{0.9 cm}}
+\toprule
+\rowcolor{grisclaro} \textbf{fecha} & \textbf{dia} & \textbf{Horas}\\
+\midrule
+{% for r in dias_fin_semana %}
+{{ r['fecha'].strftime('%Y-%m-%d') }}& {{ r['dia'] }} & {{ "%.2f"|format(r['jornada'].total_seconds() / 3600) }}\\
+{% endfor %}
+\bottomrule
+\end{tabular}
+}
+\\
+\\
+{% endif %}
+
+{% set marcajes_incompletos = [] %}
+{% for r in regs %}
+    {% if r['jornada'] is defined and r['jornada'].total_seconds() == 0 %}
+        {% set marcajes_incompletos = marcajes_incompletos.append(r) or marcajes_incompletos %}
+    {% endif %}
+{% endfor %}
+{% if marcajes_incompletos and marcajes_incompletos|length > 0 %}
+\infobox{D\'ias con Marcaje Incompleto}{
+\begin{tabular}{p{2.5cm} p{1.5cm}}
+\toprule
+\rowcolor{grisclaro} \textbf{fecha} & \textbf{dia}\\
+\midrule
+{% for r in marcajes_incompletos %}
+{{ r['fecha'].strftime('%Y-%m-%d') }} & {{r['dia']}}\\
+{% endfor %}
+\bottomrule
+\end{tabular}
+}
+\\
+\\
+{% endif %}
+
+\infobox{Resumen del Mes}{
+\begin{tabular}{p{2.5cm} p{1.5cm}}
+\toprule
+\rowcolor{grisclaro} \textbf{Total Días} & {{ regs|length }}\\
+\midrule
+\rowcolor{grisclaro} \textbf{Total Horas} &
+{%- set total_horas = namespace(value=0) -%}
+{%- for r in regs -%}
+    {%- if r['jornada'] is defined and r['jornada'] is not none -%}
+        {%- set total_horas.value = total_horas.value + r['jornada'].total_seconds() / 3600 -%}
+    {%- endif -%}
+{%- endfor -%}
+{{ "%.2f"|format(total_horas.value) }}\\
+\bottomrule
+\end{tabular}
+}
+\end{tabular}
+\end{tabular}
+\clearpage
+{% endfor %}
 {% endfor %}
 
 \end{document}

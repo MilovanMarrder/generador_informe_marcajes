@@ -1,4 +1,4 @@
-from reportgen.templating_2 import render_report
+from reportgen.templating import render_report
 from reportgen.processing import (
     get_detalles_marcajes, 
     get_detalles_marcajes_por_mes,  # Importar la nueva función
@@ -10,17 +10,7 @@ from reportgen.processing import (
     agrupar_resumen_por_mes_y_tipo_dia
 )
 import pandas as pd
-from datetime import timedelta
 
-# dia_ES = {
-#     'Mon' : 'Lun',
-#     'Tue' : 'Mar',
-#     'Wed' : 'Mié',
-#     'Thu' : 'Jue',
-#     'Fri' : 'Vie',
-#     'Sat' : 'Sáb',
-#     'Sun' : 'Dom'
-# }
 
 def generar_informe(df_marcajes: pd.DataFrame):
     """
@@ -81,15 +71,7 @@ def generar_informe(df_marcajes: pd.DataFrame):
         'mes_fin' : final_fechas_v.strftime('%B').capitalize(),
         'año' : inicio_fechas_v.strftime('%Y')
     }
-    # dia_ES = {
-    # 'Mon' : 'Lun',
-    # 'Tue' : 'Mar',
-    # 'Wed' : 'Mié',
-    # 'Thu' : 'Jue',
-    # 'Fri' : 'Vie',
-    # 'Sat' : 'Sáb',
-    # 'Sun' : 'Dom'
-    # }
+
     # Renderizar el informe
     render_report(contexto,f'{departamento}_informe_marcajes_{contexto["mes_inicio"]}.tex')
 
