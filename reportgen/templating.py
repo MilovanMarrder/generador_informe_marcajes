@@ -7,6 +7,7 @@ LATEX_TEMPLATE = r"""
 \documentclass[11pt,a4paper]{article}
 
 % Paquetes necesarios
+\usepackage{multicol}
 \usepackage{tcolorbox}
 \usepackage[utf8]{inputenc}
 \usepackage[spanish]{babel}
@@ -81,11 +82,12 @@ LATEX_TEMPLATE = r"""
 \renewcommand{\thesubsection}{}
 
 % Comandos personalizados
+{% raw %}
 \newcommand{\infobox}[2]{
   \begin{tcolorbox}[
     colback=grisclaro,
     colframe=corporativo,
-    title=#1,
+    title={{#1}},
     fonttitle=\bfseries
   ]
 #2
@@ -99,11 +101,14 @@ LATEX_TEMPLATE = r"""
   \renewcommand{\arraystretch}{1}
   \setlength{\tabcolsep}{6pt}
 }
-
+{% endraw %}
 \begin{document}
 
 % --- Página de título ---
 \begin{titlepage}
+
+  \centering{\large\bfseries\textcolor{corporativo}{Hospital María Especialidades Pediátricas}\par}
+  \centering{\large\textcolor{corporativo}{\textit{Cambiamos la vida de nuestros pacientitos}}\par}
   \centering
   \vspace*{2cm}
 
@@ -116,13 +121,14 @@ LATEX_TEMPLATE = r"""
   \vspace{1cm}
 
   {\large\bfseries Colaboradores:\par}
-  \begin{itemize*}
-    \centering
-    {% for empleado in empleados %}
+  \begin{multicols}{2}
+  \begin{enumerate}
+    
+    {%- for empleado in empleados -%}
       \item {{ empleado }}
-    {% endfor %}
-  \end{itemize*}
-
+    {%- endfor -%}
+  \end{enumerate}
+  \end{multicols}
   \vspace{2cm}
 
   \begin{tabular}{>{\bfseries}r @{\hspace{1em}} l}
@@ -133,23 +139,20 @@ LATEX_TEMPLATE = r"""
   \vfill
 
   {\color{gray}\rule{0.6\textwidth}{0.4pt}\par}
-  \vspace{0.5cm}
-  {\large\bfseries\textcolor{corporativo}{Hospital María Especialidades Pediátricas}\par}
-  {\large\textcolor{corporativo}{\textit{Cambiamos la vida de nuestros pacientitos}}\par}
 \end{titlepage}
 
-
 \tableofcontents
+
 \clearpage
 
-{% if empleados|length > 1 %}
+{% if empleados|length > 1 -%}
 \section{Resumen General}
 
 \infobox{Horas trabajadas por período, tipo de día y empleado}{
   A continuación se presenta el detalle de los días trabajados, horas totales y promedio de jornada por empleado, diferenciando entre días de semana y fines de semana.
 }
 
-{% if resumen_fusionado %}
+{% if resumen_fusionado -%}
 % Resumen integrado con todos los meses en una sola tabla
 \subsection{Días de semana}
 
@@ -161,11 +164,11 @@ LATEX_TEMPLATE = r"""
 \toprule
 \rowcolor{grisclaro} \textbf{Empleado} & \textbf{Trabajado} & \textbf{Total Hrs} & \textbf{Horas por Día}\\
 \midrule
-{% for row in resumen_fusionado %}
-{% if row.tipo_dia == "Día de semana" %}
+{% for row in resumen_fusionado -%}
+{% if row.tipo_dia == "Día de semana" -%}
 {{ row.nombre }} & {{ row.dias_trabajados }} & {{ "%.2f"|format(row.total_horas) }} & {{ "%.2f"|format(row.total_horas / row.dias_trabajados) }}\\
-{% endif %}
-{% endfor %}
+{% endif -%}
+{% endfor -%}
 \bottomrule
 \end{tabular}
 }
@@ -181,23 +184,23 @@ LATEX_TEMPLATE = r"""
 \toprule
 \rowcolor{grisclaro} \textbf{Empleado} & \textbf{Trabajado} & \textbf{Total Hrs} & \textbf{Horas por Día}\\
 \midrule
-{% for row in resumen_fusionado %}
-{% if row.tipo_dia != "Día de semana" %}
+{% for row in resumen_fusionado -%}
+{% if row.tipo_dia != "Día de semana" -%}
 {{ row.nombre }} & {{ row.dias_trabajados }} & {{ "%.2f"|format(row.total_horas) }} & {{ "%.2f"|format(row.total_horas / row.dias_trabajados) }}\\
-{% endif %}
-{% endfor %}
+{% endif -%}
+{% endfor -%}
 \bottomrule
 \end{tabular}
 }
 \end{table}
 
-{% else %}
+{% else -%}
 % Formato anterior (por si no está disponible resumen_fusionado)
-{% for mes, tipos_dia in resumen_por_mes_y_tipo_dia.items() %}
+{% for mes, tipos_dia in resumen_por_mes_y_tipo_dia.items() -%}
 
 \section{ {{ mes }} }
 
-{% for tipo_dia, registros in tipos_dia.items() %}
+{% for tipo_dia, registros in tipos_dia.items() -%}
 
 \subsection{ {{ tipo_dia }} }
 
@@ -209,27 +212,27 @@ LATEX_TEMPLATE = r"""
 \toprule
 \rowcolor{grisclaro} \textbf{Empleado} & \textbf{Días} & \textbf{Total Hrs} & \textbf{Horas por Día}\\
 \midrule
-{% for row in registros %}
+{% for row in registros -%}
 {{ row.nombre }} & {{ row.dias_trabajados }} & {{ "%.2f"|format(row.total_horas) }} & {{ "%.2f"|format(row.promedio_jornada) }}\\
-{% endfor %}
+{% endfor -%}
 \bottomrule
 \end{tabular}
 }
 \caption{Detalle de {{ tipo_dia }} en {{ mes }}}
 \end{table}
 
-{% endfor %}
-{% endfor %}
-{% endif %}
-{% endif %}
+{% endfor -%}
+{% endfor -%}
+{% endif -%}
+{% endif -%}
 
 
 \clearpage
 
 \section{Detalles de Marcajes por Colaborador}
-{% for nombre, meses in detalles_marcajes_por_mes.items() %}
+{% for nombre, meses in detalles_marcajes_por_mes.items() -%}
 \subsection{ {{ nombre }} }
-{% for mes, regs in meses.items() %}
+{% for mes, regs in meses.items() -%}
 
 \begin{tabular}{p{0.6\textwidth}p{0.4\textwidth}}
 % Columna izquierda con la tabla principal
@@ -268,72 +271,72 @@ LATEX_TEMPLATE = r"""
 {%- endif -%}
 
 \\
-{% endfor %}
+{% endfor -%}
 \bottomrule
 \end{tabular}
 }
 &
 % Columna derecha con las cajas de información
 \begin{tabular}{c}
-{% if nombre in outliers_por_persona_y_mes and mes in outliers_por_persona_y_mes[nombre] and outliers_por_persona_y_mes[nombre][mes]|length > 0 %}
+{% if nombre in outliers_por_persona_y_mes and mes in outliers_por_persona_y_mes[nombre] and outliers_por_persona_y_mes[nombre][mes]|length > 0 -%}
 \infobox{D\'ias At\'ipicos}{
 \begin{tabular}{p{2cm} p{2cm}}
 \toprule
 \rowcolor{grisclaro} \textbf{fecha} & \textbf{Tipo}\\
 \midrule
-{% for o in outliers_por_persona_y_mes[nombre][mes] %}
+{% for o in outliers_por_persona_y_mes[nombre][mes] -%}
 {{ o['fecha'].strftime('%Y-%m-%d') }} & {{ o['tipo'] }}\\
-{% endfor %}
+{% endfor -%}
 \bottomrule
 \end{tabular}
 }
 \\
 \\
-{% endif %}
+{% endif -%}
 
-{% set dias_fin_semana = [] %}
-{% for r in regs %}
-    {% if r['fecha'].weekday() >= 5 %}
-        {% set dias_fin_semana = dias_fin_semana.append(r) or dias_fin_semana %}
-    {% endif %}
-{% endfor %}
-{% if dias_fin_semana and dias_fin_semana|length > 0 %}
+{% set dias_fin_semana = [] -%}
+{% for r in regs -%}
+    {% if r['fecha'].weekday() >= 5 -%}
+        {% set dias_fin_semana = dias_fin_semana.append(r) or dias_fin_semana -%}
+    {% endif -%}
+{% endfor -%}
+{% if dias_fin_semana and dias_fin_semana|length > 0 -%}
 \infobox{Fines de Semana Trabajados}{
 \begin{tabular}{p{1.8cm} p{0.9cm} p{0.9 cm}}
 \toprule
 \rowcolor{grisclaro} \textbf{fecha} & \textbf{dia} & \textbf{Horas}\\
 \midrule
-{% for r in dias_fin_semana %}
+{% for r in dias_fin_semana -%}
 {{ r['fecha'].strftime('%Y-%m-%d') }}& {{ r['dia'] }} & {{ "%.2f"|format(r['jornada'].total_seconds() / 3600) }}\\
-{% endfor %}
+{% endfor -%}
 \bottomrule
 \end{tabular}
 }
 \\
 \\
-{% endif %}
+{% endif -%}
 
-{% set marcajes_incompletos = [] %}
-{% for r in regs %}
-    {% if r['jornada'] is defined and r['jornada'].total_seconds() == 0 %}
-        {% set marcajes_incompletos = marcajes_incompletos.append(r) or marcajes_incompletos %}
-    {% endif %}
-{% endfor %}
-{% if marcajes_incompletos and marcajes_incompletos|length > 0 %}
+{% set marcajes_incompletos = [] -%}
+{% for r in regs -%}
+    {% if r['jornada'] is defined and r['jornada'].total_seconds() == 0 -%}
+        {% set marcajes_incompletos = marcajes_incompletos.append(r) or marcajes_incompletos -%}
+    {% endif -%}
+{% endfor -%}
+{% if marcajes_incompletos and marcajes_incompletos|length > 0 -%}
 \infobox{D\'ias con Marcaje Incompleto}{
 \begin{tabular}{p{2.5cm} p{1.5cm}}
 \toprule
 \rowcolor{grisclaro} \textbf{fecha} & \textbf{dia}\\
 \midrule
-{% for r in marcajes_incompletos %}
+{% for r in marcajes_incompletos -%}
 {{ r['fecha'].strftime('%Y-%m-%d') }} & {{r['dia']}}\\
-{% endfor %}
+{% endfor -%}
 \bottomrule
 \end{tabular}
 }
 \\
 \\
-{% endif %}
+{% endif -%}
 
 \infobox{Resumen del Mes}{
 \begin{tabular}{p{2.5cm} p{1.5cm}}
@@ -354,8 +357,8 @@ LATEX_TEMPLATE = r"""
 \end{tabular}
 \end{tabular}
 \clearpage
-{% endfor %}
-{% endfor %}
+{% endfor -%}
+{% endfor -%}
 
 \end{document}
 """
