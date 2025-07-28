@@ -7,26 +7,21 @@ LATEX_TEMPLATE = r"""
 \documentclass[11pt,a4paper]{article}
 
 % Paquetes necesarios
-\usepackage{multicol}
-\usepackage{tcolorbox}
 \usepackage[utf8]{inputenc}
 \usepackage[spanish]{babel}
 \usepackage{geometry}
-\usepackage{fancyhdr}
-\usepackage{xcolor}
-\usepackage{titlesec}
 \usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage[table]{xcolor} % Cargar después de xcolor
+\usepackage{tcolorbox}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
 \usepackage{booktabs}
 \usepackage{array}
-\usepackage{multirow}
-\usepackage{enumitem}
-\usepackage{hyperref}
-\usepackage{float}
-\usepackage{colortbl}
 \usepackage{longtable}
-\usepackage[table]{xcolor}
-
- 
+\usepackage{multicol}
+\usepackage{float}
+\usepackage{hyperref}
 
 % Definición de colores
 \definecolor{corporativo}{RGB}{45,55,72}
@@ -67,8 +62,7 @@ LATEX_TEMPLATE = r"""
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{0.5em}
 
-% Listas
-\setlist{noitemsep, leftmargin=1.5em}
+
 
 % Hipervínculos
 \hypersetup{
@@ -104,6 +98,7 @@ LATEX_TEMPLATE = r"""
 {% endraw %}
 \begin{document}
 
+
 % --- Página de título ---
 \begin{titlepage}
 
@@ -122,12 +117,12 @@ LATEX_TEMPLATE = r"""
 
   {\large\bfseries Colaboradores:\par}
   \begin{multicols}{2}
-  \begin{enumerate}
+  \begin{itemize}
     
     {%- for empleado in empleados -%}
       \item {{ empleado }}
     {%- endfor -%}
-  \end{enumerate}
+  \end{itemize}
   \end{multicols}
   \vspace{2cm}
 
@@ -141,7 +136,6 @@ LATEX_TEMPLATE = r"""
   {\color{gray}\rule{0.6\textwidth}{0.4pt}\par}
 \end{titlepage}
 
-\tableofcontents
 
 \clearpage
 

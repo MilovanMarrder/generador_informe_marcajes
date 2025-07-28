@@ -96,6 +96,7 @@ class ReportGeneratorApp:
         
         self.update_generate_button_state()
 
+
     def generate_reports_logic(self):
         selected_depts = [dept for dept, var in self.department_vars.items() if var.get()]
         if not selected_depts:
@@ -105,27 +106,40 @@ class ReportGeneratorApp:
         self.generate_button.config(state=tk.DISABLED)
         output_dir = self.output_folder.get()
         
-        try:
-            total_reports = len(selected_depts)
-            for i, dept in enumerate(selected_depts):
+        # --- BUCLE CORREGIDO ---
+        success_count = 0
+        error_list = []
+        total_reports = len(selected_depts)
+
+        for i, dept in enumerate(selected_depts):
+            # Movemos el try...except DENTRO del bucle
+            try:
                 self.status_text.set(f"Generando reporte para '{dept}' ({i+1}/{total_reports})...")
                 df_dept = self.df[self.df['departamento'] == dept]
                 
-                sanitized_dept_name = "".join(c for c in dept if c.isalnum() or c in (' ', '_')).rstrip().replace(' ', '_')
-                output_filename = f"Reporte_{sanitized_dept_name}_{pd.Timestamp.now().strftime('%Y-%m-%d')}.pdf"
-                #full_output_path = os.path.join(output_dir, output_filename)
-                
-                # LLAMADA A LA FUNCIÓN CORRECTA DE generador.py
                 generar_informe(df_dept, output_dir)
+                success_count += 1
 
-            self.status_text.set("¡Proceso completado con éxito!")
-            messagebox.showinfo("Proceso Terminado", f"Se generaron {total_reports} reportes en:\n\n{output_dir}")
-        except Exception as e:
-            self.status_text.set("Ocurrió un error durante la generación.")
-            messagebox.showerror("Error de Generación", f"No se pudieron generar los reportes.\n\nError: {e}")
-        
-        finally:
-            self.generate_button.config(state=tk.NORMAL)
+            except Exception as e:
+                # Si falla, añadimos el departamento a una lista de errores y continuamos
+                print(f"ERROR al generar para el departamento '{dept}': {e}")
+                error_list.append(dept)
+                continue # <-- ¡Importante! Pasa al siguiente departamento
+
+        # --- FIN DEL BUCLE CORREGIDO ---
+
+        # Mostramos un resumen final
+        self.status_text.set("Proceso completado.")
+        if not error_list:
+            messagebox.showinfo("Proceso Terminado", f"Se generaron {success_count} reportes con éxito en:\n\n{output_dir}")
+        else:
+            messagebox.showwarning("Proceso Terminado con Errores", 
+                                f"Se generaron {success_count} reportes con éxito.\n\n"
+                                f"No se pudieron generar reportes para los siguientes departamentos:\n"
+                                f"- {', '.join(error_list)}\n\n"
+                                f"Por favor, revisa los datos de esos departamentos.")
+
+        self.generate_button.config(state=tk.NORMAL)
 
     def populate_department_checkboxes(self):
         for widget in self.departments_frame_container.winfo_children(): widget.pack_forget()
