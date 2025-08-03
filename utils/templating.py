@@ -1,6 +1,4 @@
 from jinja2 import Template
-from datetime import datetime, timedelta
-# from reportgen.processing import dias_semana
 
 
 LATEX_TEMPLATE = r"""

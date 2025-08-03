@@ -1,7 +1,7 @@
 import os
 import re
-from reportgen.templating import render_report
-from reportgen.processing import (
+from utils.templating import render_report
+from utils.processing import (
     get_detalles_marcajes, 
     get_detalles_marcajes_por_mes,  # Importar la nueva función
     compute_outliers_por_persona,

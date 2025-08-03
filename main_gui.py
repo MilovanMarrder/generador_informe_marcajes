@@ -1,13 +1,12 @@
 # main_gui.py
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
-import pandas as pd
 import os
 from threading import Thread
 
 # --- Importaciones de módulos personalizados ---
 from utils.data import etl_df
-from reportgen.generador import generar_informe
+from utils.generador import generar_informe
 
 class ModernReportGeneratorApp:
     def __init__(self, root):
